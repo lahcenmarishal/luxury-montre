@@ -14,7 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 
-type Tab = "overview" | "products" | "orders";
+type Tab = "overview" | "products" | "orders" | "settings";
 
 interface ProductForm {
   name: string; brand: string; price: string; old_price: string;
