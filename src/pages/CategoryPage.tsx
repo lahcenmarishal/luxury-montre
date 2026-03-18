@@ -111,9 +111,9 @@ const CategoryPage = () => {
                 <div className="mb-8">
                   <h3 className="text-lg font-display font-semibold mb-4 tracking-wider">Produits Glycine</h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    {glycineProducts.map((p) => (
+                    {displayGlycineProducts.map((p) => (
                       <Link key={p.id} to={`/produit/${p.id}`}>
-                        <ProductCard image={p.image} hoverImage={p.hoverImage} brand={p.brand} name={p.name} price={p.price} oldPrice={p.oldPrice} badge={p.badge} />
+                        <ProductCard image={p.image_url || ""} hoverImage={p.hover_image_url || ""} brand={p.brand} name={p.name} price={p.price} oldPrice={p.old_price ?? undefined} badge={p.badge_type ? { type: p.badge_type as "hot" | "sale", label: p.badge_label || "" } : undefined} />
                       </Link>
                     ))}
                   </div>
