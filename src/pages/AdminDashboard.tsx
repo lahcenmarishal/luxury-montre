@@ -234,6 +234,7 @@ const AdminDashboard = () => {
     { id: "overview" as Tab, label: "Vue d'ensemble", icon: BarChart3 },
     { id: "products" as Tab, label: "Produits", icon: Package },
     { id: "orders" as Tab, label: "Commandes", icon: ShoppingCart },
+    { id: "settings" as Tab, label: "Paramètres", icon: Settings },
   ];
 
   const statusColors: Record<string, string> = {
