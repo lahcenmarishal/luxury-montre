@@ -1,13 +1,7 @@
-import { Facebook, Instagram, MessageCircle } from "lucide-react";
+import { Facebook, Instagram, MessageCircle, Phone, MapPin, Mail } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-
-const footerCols = [
-  { title: "MONTRES", links: ["Homme", "Femme", "Glycine", "Seiko", "Fossil", "Casio"] },
-  { title: "BIJOUX & ACCESSOIRES", links: ["Bagues", "Bracelets", "Lunettes de vue", "Lunettes de soleil", "Parfum", "Maroquinerie"] },
-  { title: "SERVICES", links: ["Garantie", "Conseils personnalisés", "Réparation", "Gravure", "Livraison", "Retours"] },
-  { title: "INFORMATIONS", links: ["À propos", "Contact", "Conditions générales", "Politique de confidentialité", "FAQ"] },
-];
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   const { data: socialLinks } = useQuery({
@@ -28,52 +22,78 @@ const Footer = () => {
   const facebookLink = socialLinks?.facebook || "#";
 
   return (
-    <footer className="bg-primary text-primary-foreground pt-16 pb-8">
+    <footer className="bg-primary text-primary-foreground pt-12 pb-6">
       <div className="section-container">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
-          {footerCols.map((col) => (
-            <div key={col.title}>
-              <h4 className="text-xs font-body tracking-[0.2em] text-primary-foreground font-bold mb-4">{col.title}</h4>
-              <ul className="space-y-2">
-                {col.links.map((link) => (
-                  <li key={link}>
-                    <a href="#" className="text-xs text-primary-foreground/60 font-body hover:text-accent transition-colors duration-200">
-                      {link}
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-
-        <div className="border-t border-primary-foreground/20 pt-8 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-5">
-            <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="w-10 h-10 border border-primary-foreground/30 flex items-center justify-center hover:bg-accent hover:border-accent transition-all duration-200" title="WhatsApp">
-              <MessageCircle className="w-4 h-4" />
-            </a>
-            <a href={facebookLink} target="_blank" rel="noopener noreferrer" className="w-10 h-10 border border-primary-foreground/30 flex items-center justify-center hover:bg-accent hover:border-accent transition-all duration-200" title="Facebook">
-              <Facebook className="w-4 h-4" />
-            </a>
-            <a href={instagramLink} target="_blank" rel="noopener noreferrer" className="w-10 h-10 border border-primary-foreground/30 flex items-center justify-center hover:bg-accent hover:border-accent transition-all duration-200" title="Instagram">
-              <Instagram className="w-4 h-4" />
-            </a>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <span className="text-[10px] tracking-wider font-body text-primary-foreground/50 mr-2">PAIEMENT SÉCURISÉ</span>
-            <div className="flex items-center gap-2">
-              {["VISA", "MC", "AMEX", "CMI"].map((mode) => (
-                <span key={mode} className="px-3 py-1 border border-primary-foreground/30 text-[10px] font-body tracking-wider text-primary-foreground/70">
-                  {mode}
-                </span>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mb-10">
+          {/* Navigation */}
+          <div>
+            <h4 className="text-xs font-body tracking-[0.2em] text-primary-foreground font-bold mb-4">NAVIGATION</h4>
+            <ul className="space-y-2">
+              {[
+                { label: "Accueil", href: "/" },
+                { label: "Montres", href: "/categorie/montres" },
+                { label: "Bijoux", href: "/categorie/bijoux" },
+                { label: "Accessoires", href: "/categorie/accessoires" },
+                { label: "Services", href: "/services" },
+              ].map((link) => (
+                <li key={link.label}>
+                  <Link to={link.href} className="text-xs text-primary-foreground/60 font-body hover:text-accent transition-colors duration-200">
+                    {link.label}
+                  </Link>
+                </li>
               ))}
+            </ul>
+          </div>
+
+          {/* Services */}
+          <div>
+            <h4 className="text-xs font-body tracking-[0.2em] text-primary-foreground font-bold mb-4">SERVICES</h4>
+            <ul className="space-y-2">
+              {["Garantie", "Conseils personnalisés", "Réparation", "Gravure"].map((link) => (
+                <li key={link}>
+                  <Link to="/services" className="text-xs text-primary-foreground/60 font-body hover:text-accent transition-colors duration-200">
+                    {link}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact */}
+          <div>
+            <h4 className="text-xs font-body tracking-[0.2em] text-primary-foreground font-bold mb-4">CONTACT</h4>
+            <ul className="space-y-3">
+              <li className="flex items-center gap-2 text-xs text-primary-foreground/60 font-body">
+                <Phone className="w-3.5 h-3.5 flex-shrink-0" />
+                <a href="tel:+212660304856" className="hover:text-accent transition-colors">+212 660 304 856</a>
+              </li>
+              <li className="flex items-center gap-2 text-xs text-primary-foreground/60 font-body">
+                <Mail className="w-3.5 h-3.5 flex-shrink-0" />
+                <span>contact@luxurymontre.com</span>
+              </li>
+              <li className="flex items-start gap-2 text-xs text-primary-foreground/60 font-body">
+                <MapPin className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
+                <span>Maroc</span>
+              </li>
+            </ul>
+
+            {/* Social links */}
+            <div className="flex items-center gap-3 mt-5">
+              <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="w-9 h-9 border border-primary-foreground/30 flex items-center justify-center hover:bg-accent hover:border-accent transition-all duration-200" title="WhatsApp">
+                <MessageCircle className="w-4 h-4" />
+              </a>
+              <a href={facebookLink} target="_blank" rel="noopener noreferrer" className="w-9 h-9 border border-primary-foreground/30 flex items-center justify-center hover:bg-accent hover:border-accent transition-all duration-200" title="Facebook">
+                <Facebook className="w-4 h-4" />
+              </a>
+              <a href={instagramLink} target="_blank" rel="noopener noreferrer" className="w-9 h-9 border border-primary-foreground/30 flex items-center justify-center hover:bg-accent hover:border-accent transition-all duration-200" title="Instagram">
+                <Instagram className="w-4 h-4" />
+              </a>
             </div>
           </div>
         </div>
 
-        <div className="mt-8 text-center">
-          <p className="text-[11px] text-primary-foreground/40 font-body">Copyright © 2026 LuxuryMontre. Tous droits réservés.</p>
+        <div className="border-t border-primary-foreground/20 pt-6 text-center">
+          <p className="text-[11px] text-primary-foreground/40 font-body">© 2026 LuxuryMontre. Tous droits réservés.</p>
         </div>
       </div>
     </footer>
