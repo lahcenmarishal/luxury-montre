@@ -11,6 +11,8 @@ import SubcategoryPage from "./pages/SubcategoryPage";
 import ProductPage from "./pages/ProductPage";
 import ServicesPage from "./pages/ServicesPage";
 import CheckoutPage from "./pages/CheckoutPage";
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
