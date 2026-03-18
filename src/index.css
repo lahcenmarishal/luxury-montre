@@ -1,0 +1,98 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Lato:wght@300;400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 10%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+
+    --primary: 0 0% 8%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 40 6% 95%;
+    --secondary-foreground: 0 0% 10%;
+
+    --muted: 40 6% 95%;
+    --muted-foreground: 0 0% 45%;
+
+    --accent: 36 45% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 0 0% 8%;
+
+    --radius: 0rem;
+
+    --topbar-bg: 0 0% 8%;
+    --topbar-foreground: 0 0% 100%;
+    --badge-hot: 0 72% 51%;
+    --badge-sale: 0 0% 8%;
+    --price-old: 0 0% 55%;
+    --price-new: 0 0% 10%;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+}
+
+@layer components {
+  .btn-shop {
+    @apply inline-block bg-primary text-primary-foreground px-8 py-3 text-sm font-body tracking-widest uppercase transition-all duration-300 hover:bg-accent;
+  }
+  .btn-shop-outline {
+    @apply inline-block border border-primary-foreground text-primary-foreground px-8 py-3 text-sm font-body tracking-widest uppercase transition-all duration-300 hover:bg-primary-foreground hover:text-primary;
+  }
+  .section-container {
+    @apply max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8;
+  }
+  .product-badge {
+    @apply absolute top-3 left-3 px-3 py-1 text-xs font-body uppercase tracking-wider z-10;
+  }
+  .product-badge-hot {
+    @apply product-badge bg-[hsl(var(--badge-hot))] text-primary-foreground;
+  }
+  .product-badge-sale {
+    @apply product-badge bg-[hsl(var(--badge-sale))] text-primary-foreground;
+  }
+}
+
+@keyframes kenburns {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.08); }
+}
+
+@keyframes progressBar {
+  0% { transform: scaleX(0); transform-origin: left; }
+  100% { transform: scaleX(1); transform-origin: left; }
+}
