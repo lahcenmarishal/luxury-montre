@@ -88,6 +88,37 @@ const AdminDashboard = () => {
     enabled: isAdmin,
   });
 
+  // Load social settings
+  useEffect(() => {
+    if (!isAdmin) return;
+    const loadSettings = async () => {
+      const { data } = await supabase.from("site_settings").select("key, value");
+      if (data) {
+        const map: Record<string, string> = {};
+        data.forEach((r: any) => { map[r.key] = r.value; });
+        setSocialLinks({
+          whatsapp: map.whatsapp || "",
+          instagram: map.instagram || "",
+          facebook: map.facebook || "",
+        });
+      }
+    };
+    loadSettings();
+  }, [isAdmin]);
+
+  const saveSocialLinks = async () => {
+    setSavingSettings(true);
+    try {
+      for (const [key, value] of Object.entries(socialLinks)) {
+        await supabase.from("site_settings").update({ value, updated_at: new Date().toISOString() }).eq("key", key);
+      }
+      toast({ title: "Coordonnées mises à jour" });
+    } catch (err: any) {
+      toast({ title: "Erreur", description: err.message, variant: "destructive" });
+    }
+    setSavingSettings(false);
+  };
+
   const uploadImage = async (file: File): Promise<string> => {
     const ext = file.name.split(".").pop();
     const path = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
