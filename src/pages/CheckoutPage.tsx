@@ -5,6 +5,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
 import { ChevronRight, Truck, Shield, CheckCircle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const formatMAD = (amount: number) => `${amount.toLocaleString("fr-MA")} MAD`;
 
@@ -19,6 +21,8 @@ const CheckoutPage = () => {
   const shippingCost = totalPrice >= 500 ? 0 : 30;
   const orderTotal = totalPrice + shippingCost;
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const { toast } = useToast();
 
   const [form, setForm] = useState({
     firstName: "", lastName: "", email: "", phone: "",
@@ -30,10 +34,38 @@ const CheckoutPage = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setOrderPlaced(true);
-    clearCart();
+    setSubmitting(true);
+    try {
+      const orderItems = items.map(item => ({
+        name: item.name,
+        brand: item.brand,
+        price: item.price,
+        quantity: item.quantity,
+        image: item.image,
+      }));
+
+      const { error } = await supabase.from("orders").insert({
+        customer_name: `${form.firstName} ${form.lastName}`,
+        customer_email: form.email,
+        customer_phone: form.phone,
+        shipping_address: `${form.address}, ${form.zipCode}`,
+        city: form.city,
+        total: orderTotal,
+        items: orderItems,
+        status: "pending",
+      });
+
+      if (error) throw error;
+
+      setOrderPlaced(true);
+      clearCart();
+    } catch (err: any) {
+      toast({ title: "Erreur", description: err.message, variant: "destructive" });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (orderPlaced) {
@@ -199,8 +231,8 @@ const CheckoutPage = () => {
                 </div>
               </div>
 
-              <button type="submit" className="btn-shop w-full text-center text-xs mt-6">
-                CONFIRMER LA COMMANDE
+              <button type="submit" disabled={submitting} className="btn-shop w-full text-center text-xs mt-6 disabled:opacity-50">
+                {submitting ? "ENVOI EN COURS..." : "CONFIRMER LA COMMANDE"}
               </button>
 
               <div className="mt-6 space-y-3">

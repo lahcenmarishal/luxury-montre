@@ -1,6 +1,6 @@
 import { useAdmin } from "@/hooks/useAdmin";
 import { useState } from "react";
-import { Package, ShoppingCart, BarChart3, LogOut, Plus, Upload, Pencil, Trash2, Eye, EyeOff } from "lucide-react";
+import { Package, ShoppingCart, BarChart3, LogOut, Plus, Pencil, Trash2, Eye, ArrowLeft, X, ImagePlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Link } from "react-router-dom";
 
 type Tab = "overview" | "products" | "orders";
 
@@ -29,6 +30,30 @@ const emptyForm: ProductForm = {
   description: "", model: "", stock: "0", is_active: true,
 };
 
+const subcategoryOptions: Record<string, { value: string; label: string }[]> = {
+  montres: [
+    { value: "homme", label: "Homme" },
+    { value: "femme", label: "Femme" },
+    { value: "glycine", label: "Glycine" },
+    { value: "seiko", label: "Seiko" },
+    { value: "fossil", label: "Fossil" },
+    { value: "casio", label: "Casio" },
+  ],
+  bijoux: [
+    { value: "bagues", label: "Bagues" },
+    { value: "bracelets", label: "Bracelets" },
+  ],
+  accessoires: [
+    { value: "lunettes-de-vue", label: "Lunettes de vue" },
+    { value: "lunettes-de-soleil", label: "Lunettes de soleil" },
+    { value: "parfum", label: "Parfum" },
+    { value: "stylos", label: "Stylos" },
+    { value: "porte-documents", label: "Porte-documents" },
+    { value: "portefeuille", label: "Portefeuille" },
+    { value: "sac-a-dos", label: "Sac à dos" },
+  ],
+};
+
 const AdminDashboard = () => {
   const { isAdmin, loading, signOut } = useAdmin();
   const [tab, setTab] = useState<Tab>("overview");
@@ -37,6 +62,7 @@ const AdminDashboard = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [hoverImageFile, setHoverImageFile] = useState<File | null>(null);
+  const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -73,9 +99,13 @@ const AdminDashboard = () => {
     mutationFn: async () => {
       let image_url: string | undefined;
       let hover_image_url: string | undefined;
+      let galleryUrls: string[] = [];
 
       if (imageFile) image_url = await uploadImage(imageFile);
       if (hoverImageFile) hover_image_url = await uploadImage(hoverImageFile);
+      if (galleryFiles.length > 0) {
+        galleryUrls = await Promise.all(galleryFiles.map(f => uploadImage(f)));
+      }
 
       const payload: Record<string, unknown> = {
         name: form.name, brand: form.brand,
@@ -89,6 +119,15 @@ const AdminDashboard = () => {
       };
       if (image_url) payload.image_url = image_url;
       if (hover_image_url) payload.hover_image_url = hover_image_url;
+      if (galleryUrls.length > 0) {
+        if (editingId) {
+          const existing = products.find((p: any) => p.id === editingId);
+          const existingGallery = existing?.gallery || [];
+          payload.gallery = [...existingGallery, ...galleryUrls];
+        } else {
+          payload.gallery = galleryUrls;
+        }
+      }
 
       if (editingId) {
         const { error } = await supabase.from("products").update(payload).eq("id", editingId);
@@ -105,6 +144,7 @@ const AdminDashboard = () => {
       setEditingId(null);
       setImageFile(null);
       setHoverImageFile(null);
+      setGalleryFiles([]);
       toast({ title: editingId ? "Produit modifié" : "Produit ajouté" });
     },
     onError: (err: Error) => {
@@ -147,6 +187,7 @@ const AdminDashboard = () => {
     });
     setImageFile(null);
     setHoverImageFile(null);
+    setGalleryFiles([]);
     setDialogOpen(true);
   };
 
@@ -170,6 +211,8 @@ const AdminDashboard = () => {
     cancelled: "bg-red-100 text-red-800",
   };
 
+  const currentSubcategories = subcategoryOptions[form.category] || [];
+
   return (
     <div className="min-h-screen bg-secondary/30">
       {/* Sidebar */}
@@ -192,7 +235,10 @@ const AdminDashboard = () => {
             </button>
           ))}
         </nav>
-        <div className="p-4 border-t border-primary-foreground/10">
+        <div className="p-4 border-t border-primary-foreground/10 space-y-1">
+          <Link to="/" className="w-full flex items-center gap-3 px-4 py-3 text-sm font-body text-primary-foreground/60 hover:text-primary-foreground transition-colors">
+            <ArrowLeft className="w-4 h-4" /> Retour au site
+          </Link>
           <button onClick={signOut} className="w-full flex items-center gap-3 px-4 py-3 text-sm font-body text-primary-foreground/60 hover:text-primary-foreground transition-colors">
             <LogOut className="w-4 h-4" /> Déconnexion
           </button>
@@ -240,7 +286,7 @@ const AdminDashboard = () => {
                         <TableCell className="font-body">{o.customer_name}</TableCell>
                         <TableCell className="font-body">{Number(o.total).toLocaleString()} MAD</TableCell>
                         <TableCell><span className={`px-2 py-1 rounded text-xs font-body ${statusColors[o.status] || ""}`}>{o.status}</span></TableCell>
-                        <TableCell className="text-sm text-muted-foreground font-body">{new Date(o.created_at).toLocaleDateString("fr-FR")}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground font-body">{new Date(o.created_at!).toLocaleDateString("fr-FR")}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
@@ -254,7 +300,7 @@ const AdminDashboard = () => {
           <div>
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-display font-bold text-foreground">Produits</h2>
-              <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { setEditingId(null); setForm(emptyForm); } }}>
+              <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) { setEditingId(null); setForm(emptyForm); setGalleryFiles([]); } }}>
                 <DialogTrigger asChild>
                   <Button><Plus className="w-4 h-4 mr-2" /> Ajouter un produit</Button>
                 </DialogTrigger>
@@ -281,7 +327,7 @@ const AdminDashboard = () => {
                     </div>
                     <div className="space-y-2">
                       <Label>Catégorie *</Label>
-                      <Select value={form.category} onValueChange={v => setForm({ ...form, category: v })}>
+                      <Select value={form.category} onValueChange={v => setForm({ ...form, category: v, subcategory: "" })}>
                         <SelectTrigger><SelectValue placeholder="Catégorie" /></SelectTrigger>
                         <SelectContent>
                           <SelectItem value="montres">Montres</SelectItem>
@@ -292,7 +338,14 @@ const AdminDashboard = () => {
                     </div>
                     <div className="space-y-2">
                       <Label>Sous-catégorie *</Label>
-                      <Input value={form.subcategory} onChange={e => setForm({ ...form, subcategory: e.target.value })} required />
+                      <Select value={form.subcategory} onValueChange={v => setForm({ ...form, subcategory: v })} disabled={!form.category}>
+                        <SelectTrigger><SelectValue placeholder="Sous-catégorie" /></SelectTrigger>
+                        <SelectContent>
+                          {currentSubcategories.map(sc => (
+                            <SelectItem key={sc.value} value={sc.value}>{sc.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="space-y-2">
                       <Label>Référence *</Label>
@@ -342,6 +395,37 @@ const AdminDashboard = () => {
                     <div className="space-y-2">
                       <Label>Image hover</Label>
                       <Input type="file" accept="image/*" onChange={e => setHoverImageFile(e.target.files?.[0] || null)} />
+                    </div>
+                    <div className="col-span-2 space-y-2">
+                      <Label className="flex items-center gap-2"><ImagePlus className="w-4 h-4" /> Galerie d'images</Label>
+                      <Input type="file" accept="image/*" multiple onChange={e => setGalleryFiles(Array.from(e.target.files || []))} />
+                      {galleryFiles.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {galleryFiles.map((f, i) => (
+                            <div key={i} className="relative">
+                              <img src={URL.createObjectURL(f)} alt="" className="w-16 h-16 object-cover border border-border" />
+                              <button type="button" onClick={() => setGalleryFiles(prev => prev.filter((_, j) => j !== i))} className="absolute -top-1 -right-1 bg-destructive text-destructive-foreground rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {editingId && (() => {
+                        const existing = products.find((p: any) => p.id === editingId);
+                        const existingGallery = existing?.gallery || [];
+                        if (existingGallery.length === 0) return null;
+                        return (
+                          <div className="mt-2">
+                            <p className="text-xs text-muted-foreground mb-1">Images existantes :</p>
+                            <div className="flex flex-wrap gap-2">
+                              {existingGallery.map((url: string, i: number) => (
+                                <img key={i} src={url} alt="" className="w-16 h-16 object-cover border border-border" />
+                              ))}
+                            </div>
+                          </div>
+                        );
+                      })()}
                     </div>
                     <div className="col-span-2 flex justify-end gap-3 pt-4">
                       <Button type="button" variant="outline" onClick={() => setDialogOpen(false)}>Annuler</Button>
@@ -455,7 +539,7 @@ const AdminDashboard = () => {
                             </SelectContent>
                           </Select>
                         </TableCell>
-                        <TableCell className="text-sm text-muted-foreground font-body">{new Date(o.created_at).toLocaleDateString("fr-FR")}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground font-body">{new Date(o.created_at!).toLocaleDateString("fr-FR")}</TableCell>
                         <TableCell>
                           <Dialog>
                             <DialogTrigger asChild>
