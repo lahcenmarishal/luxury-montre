@@ -1,15 +1,32 @@
 import { useParams, Link } from "react-router-dom";
-import { getCategoryBySlug, getProductsByCategory, getGlycineModels, products as allProducts } from "@/data/products";
+import { getCategoryBySlug, getProductsByCategory, products as allProducts } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
 import TopBar from "@/components/TopBar";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ChevronRight } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const CategoryPage = () => {
   const { categorySlug } = useParams<{ categorySlug: string }>();
   const category = getCategoryBySlug(categorySlug || "");
   const categoryProducts = getProductsByCategory(categorySlug || "");
+
+  // Fetch products from DB for montres category
+  const { data: dbProducts = [] } = useQuery({
+    queryKey: ["db-products-montres"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("category", "montres")
+        .eq("is_active", true);
+      if (error) throw error;
+      return data;
+    },
+    enabled: categorySlug === "montres",
+  });
 
   if (!category) {
     return (
@@ -27,13 +44,20 @@ const CategoryPage = () => {
 
   const isMontres = categorySlug === "montres";
 
-  // For montres: separate Glycine from "Autres Marques"
+  // For montres: use DB products
+  const glycineDbProducts = dbProducts.filter(p => p.brand?.toLowerCase() === "glycine");
+  const glycineModels = [...new Set(glycineDbProducts.map(p => p.model).filter(Boolean))] as string[];
+  const glycineReferences = glycineDbProducts.map(p => ({ ref: p.reference, name: p.name, id: p.id }));
+
+  // Also merge static glycine products as fallback
+  const staticGlycineProducts = allProducts.filter(p => p.brand === "Glycine");
+
+  // Use DB products if available, otherwise fallback to static
+  const displayGlycineProducts = glycineDbProducts.length > 0 ? glycineDbProducts : [];
+
   const glycineSubcategory = category.subcategories.find(s => s.slug === "glycine");
   const genderSubcategories = category.subcategories.filter(s => s.slug === "homme" || s.slug === "femme");
   const autresMarquesSubcategories = category.subcategories.filter(s => ["seiko", "fossil", "casio"].includes(s.slug));
-  const glycineModels = getGlycineModels();
-  const glycineProducts = allProducts.filter(p => p.brand === "Glycine");
-  const glycineReferences = glycineProducts.map(p => ({ ref: p.reference, name: p.name, id: p.id }));
 
   return (
     <div className="min-h-screen bg-background">
@@ -87,9 +111,9 @@ const CategoryPage = () => {
                 <div className="mb-8">
                   <h3 className="text-lg font-display font-semibold mb-4 tracking-wider">Produits Glycine</h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    {glycineProducts.map((p) => (
+                    {displayGlycineProducts.map((p) => (
                       <Link key={p.id} to={`/produit/${p.id}`}>
-                        <ProductCard image={p.image} hoverImage={p.hoverImage} brand={p.brand} name={p.name} price={p.price} oldPrice={p.oldPrice} badge={p.badge} />
+                        <ProductCard image={p.image_url || ""} hoverImage={p.hover_image_url || ""} brand={p.brand} name={p.name} price={p.price} oldPrice={p.old_price ?? undefined} badge={p.badge_type ? { type: p.badge_type as "hot" | "sale", label: p.badge_label || "" } : undefined} />
                       </Link>
                     ))}
                   </div>
@@ -101,7 +125,7 @@ const CategoryPage = () => {
                     <h3 className="text-lg font-display font-semibold mb-4 tracking-wider">Modèles</h3>
                     <div className="flex flex-wrap gap-3">
                       {glycineModels.map((model) => {
-                        const modelProducts = allProducts.filter(p => p.brand === "Glycine" && p.model === model);
+                        const modelProducts = glycineDbProducts.filter(p => p.model === model);
                         return (
                           <Link
                             key={model}
@@ -146,7 +170,7 @@ const CategoryPage = () => {
                 <h2 className="text-2xl font-display font-bold mb-6 tracking-wider">Autres Marques</h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {autresMarquesSubcategories.map((sub) => {
-                    const brandProducts = allProducts.filter(p => p.category === "montres" && p.brand.toLowerCase() === sub.slug);
+                    const brandProducts = dbProducts.filter(p => p.brand?.toLowerCase() === sub.slug);
                     return (
                       <Link key={sub.slug} to={`/categorie/montres/${sub.slug}`} className="group relative h-[200px] overflow-hidden bg-secondary">
                         <img src={sub.image} alt={sub.name} className="w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-110" />
