@@ -63,6 +63,8 @@ const AdminDashboard = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [hoverImageFile, setHoverImageFile] = useState<File | null>(null);
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
+  const [socialLinks, setSocialLinks] = useState({ whatsapp: "", instagram: "", facebook: "" });
+  const [savingSettings, setSavingSettings] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
