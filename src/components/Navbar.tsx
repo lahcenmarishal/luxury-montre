@@ -72,8 +72,10 @@ const Navbar = () => {
 
   return (
     <nav className="bg-background border-b border-border sticky top-0 z-50">
-      <div className="section-container flex items-center justify-between py-4">
-        <Link to="/" className="text-2xl font-display font-bold tracking-widest text-foreground">LuxuryMontre</Link>
+      <div className="section-container flex items-center justify-between py-3 sm:py-4">
+        <Link to="/" className="text-lg sm:text-xl md:text-2xl font-display font-bold tracking-widest text-foreground">
+          LuxuryMontre
+        </Link>
 
         <ul className="hidden lg:flex items-center gap-6">
           {navItems.map((item) => (
@@ -116,20 +118,20 @@ const Navbar = () => {
           ))}
         </ul>
 
-        <div className="flex items-center gap-5">
-          <Search className="w-5 h-5 text-foreground cursor-pointer hover:text-accent transition-colors" />
+        <div className="flex items-center gap-3 sm:gap-5">
+          <Search className="w-4 h-4 sm:w-5 sm:h-5 text-foreground cursor-pointer hover:text-accent transition-colors" />
           <Link to="#" className="hidden sm:block" title="Mon compte">
             <User className="w-5 h-5 text-foreground hover:text-accent transition-colors" />
           </Link>
           <Heart className="w-5 h-5 text-foreground cursor-pointer hover:text-accent transition-colors hidden sm:block" />
           <button onClick={() => setCartOpen(true)} className="relative" title="Panier">
-            <ShoppingBag className="w-5 h-5 text-foreground hover:text-accent transition-colors" />
+            <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 text-foreground hover:text-accent transition-colors" />
             {totalItems > 0 && (
               <span className="absolute -top-2 -right-2 bg-accent text-accent-foreground text-[10px] w-4 h-4 flex items-center justify-center rounded-full">{totalItems}</span>
             )}
           </button>
           <button className="lg:hidden" onClick={() => setMobileOpen(!mobileOpen)}>
-            {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            {mobileOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
           </button>
         </div>
       </div>

@@ -110,7 +110,7 @@ const HeroCarousel = () => {
                 transition: "opacity 0.7s cubic-bezier(0.16,1,0.3,1) 0.4s, transform 0.7s cubic-bezier(0.16,1,0.3,1) 0.4s",
               }}
             >
-              <p className="text-primary-foreground/70 font-body text-sm md:text-base max-w-md mb-10 leading-relaxed">
+              <p className="text-primary-foreground/70 font-body text-xs sm:text-sm md:text-base max-w-md mb-6 sm:mb-10 leading-relaxed">
                 {slides[current].desc}
               </p>
             </div>
