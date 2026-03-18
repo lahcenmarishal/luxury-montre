@@ -2,7 +2,7 @@ import ScrollReveal from "./ScrollReveal";
 import bannerImg from "@/assets/banner-prestige.jpg";
 
 const PrestigeBanner = () => (
-  <section className="relative h-[350px] md:h-[450px] overflow-hidden">
+  <section className="relative h-[280px] sm:h-[350px] md:h-[450px] overflow-hidden">
     <img src={bannerImg} alt="Prestige et Style" className="w-full h-full object-cover" />
     <div className="absolute inset-0 bg-foreground/40" />
     <div className="absolute inset-0 flex items-center">
