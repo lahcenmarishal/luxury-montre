@@ -1,6 +1,6 @@
 import { useAdmin } from "@/hooks/useAdmin";
-import { useState } from "react";
-import { Package, ShoppingCart, BarChart3, LogOut, Plus, Pencil, Trash2, Eye, ArrowLeft, X, ImagePlus } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Package, ShoppingCart, BarChart3, LogOut, Plus, Pencil, Trash2, Eye, ArrowLeft, X, ImagePlus, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
