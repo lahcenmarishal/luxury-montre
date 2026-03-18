@@ -84,9 +84,16 @@ const CategoryPage = () => {
                 <h2 className="text-2xl font-display font-bold mb-2 tracking-wider">Glycine</h2>
                 <p className="text-sm text-muted-foreground font-body mb-6">Marque suisse d'exception, reconnue pour ses montres aviateur et de plongée.</p>
 
-                <Link to="/categorie/montres/glycine" className="inline-block mb-6">
-                  <span className="text-sm font-body text-accent hover:underline">Voir tous les produits Glycine →</span>
-                </Link>
+                <div className="mb-8">
+                  <h3 className="text-lg font-display font-semibold mb-4 tracking-wider">Produits Glycine</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    {glycineProducts.map((p) => (
+                      <Link key={p.id} to={`/produit/${p.id}`}>
+                        <ProductCard image={p.image} hoverImage={p.hoverImage} brand={p.brand} name={p.name} price={p.price} oldPrice={p.oldPrice} badge={p.badge} />
+                      </Link>
+                    ))}
+                  </div>
+                </div>
 
                 {/* Glycine Models */}
                 {glycineModels.length > 0 && (
