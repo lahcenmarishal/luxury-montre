@@ -1,6 +1,6 @@
 import { useAdmin } from "@/hooks/useAdmin";
-import { useState } from "react";
-import { Package, ShoppingCart, BarChart3, LogOut, Plus, Pencil, Trash2, Eye, ArrowLeft, X, ImagePlus } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Package, ShoppingCart, BarChart3, LogOut, Plus, Pencil, Trash2, Eye, ArrowLeft, X, ImagePlus, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,7 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 
-type Tab = "overview" | "products" | "orders";
+type Tab = "overview" | "products" | "orders" | "settings";
 
 interface ProductForm {
   name: string; brand: string; price: string; old_price: string;
@@ -63,6 +63,8 @@ const AdminDashboard = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [hoverImageFile, setHoverImageFile] = useState<File | null>(null);
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
+  const [socialLinks, setSocialLinks] = useState({ whatsapp: "", instagram: "", facebook: "" });
+  const [savingSettings, setSavingSettings] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -85,6 +87,37 @@ const AdminDashboard = () => {
     },
     enabled: isAdmin,
   });
+
+  // Load social settings
+  useEffect(() => {
+    if (!isAdmin) return;
+    const loadSettings = async () => {
+      const { data } = await supabase.from("site_settings").select("key, value");
+      if (data) {
+        const map: Record<string, string> = {};
+        data.forEach((r: any) => { map[r.key] = r.value; });
+        setSocialLinks({
+          whatsapp: map.whatsapp || "",
+          instagram: map.instagram || "",
+          facebook: map.facebook || "",
+        });
+      }
+    };
+    loadSettings();
+  }, [isAdmin]);
+
+  const saveSocialLinks = async () => {
+    setSavingSettings(true);
+    try {
+      for (const [key, value] of Object.entries(socialLinks)) {
+        await supabase.from("site_settings").update({ value, updated_at: new Date().toISOString() }).eq("key", key);
+      }
+      toast({ title: "Coordonnées mises à jour" });
+    } catch (err: any) {
+      toast({ title: "Erreur", description: err.message, variant: "destructive" });
+    }
+    setSavingSettings(false);
+  };
 
   const uploadImage = async (file: File): Promise<string> => {
     const ext = file.name.split(".").pop();
@@ -201,6 +234,7 @@ const AdminDashboard = () => {
     { id: "overview" as Tab, label: "Vue d'ensemble", icon: BarChart3 },
     { id: "products" as Tab, label: "Produits", icon: Package },
     { id: "orders" as Tab, label: "Commandes", icon: ShoppingCart },
+    { id: "settings" as Tab, label: "Paramètres", icon: Settings },
   ];
 
   const statusColors: Record<string, string> = {
@@ -569,6 +603,45 @@ const AdminDashboard = () => {
                   </TableBody>
                 </Table>
               )}
+            </div>
+          </div>
+        )}
+
+        {tab === "settings" && (
+          <div>
+            <h2 className="text-2xl font-display font-bold text-foreground mb-6">Paramètres</h2>
+            <div className="bg-background border border-border p-6 max-w-lg">
+              <h3 className="text-lg font-display font-semibold mb-4">Réseaux sociaux & Contact</h3>
+              <p className="text-sm text-muted-foreground font-body mb-6">Ces liens seront affichés dans le pied de page du site.</p>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label className="font-body">WhatsApp (numéro ou lien)</Label>
+                  <Input
+                    placeholder="Ex: +212600000000 ou https://wa.me/212600000000"
+                    value={socialLinks.whatsapp}
+                    onChange={e => setSocialLinks(prev => ({ ...prev, whatsapp: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="font-body">Instagram (lien du profil)</Label>
+                  <Input
+                    placeholder="Ex: https://instagram.com/votre_compte"
+                    value={socialLinks.instagram}
+                    onChange={e => setSocialLinks(prev => ({ ...prev, instagram: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="font-body">Facebook (lien de la page)</Label>
+                  <Input
+                    placeholder="Ex: https://facebook.com/votre_page"
+                    value={socialLinks.facebook}
+                    onChange={e => setSocialLinks(prev => ({ ...prev, facebook: e.target.value }))}
+                  />
+                </div>
+                <Button onClick={saveSocialLinks} disabled={savingSettings} className="mt-4">
+                  {savingSettings ? "Enregistrement..." : "Enregistrer"}
+                </Button>
+              </div>
             </div>
           </div>
         )}
