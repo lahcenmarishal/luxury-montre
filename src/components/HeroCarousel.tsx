@@ -38,7 +38,7 @@ const HeroCarousel = () => {
   }, [current, goTo]);
 
   return (
-    <section className="relative h-[550px] md:h-[700px] overflow-hidden bg-foreground">
+    <section className="relative h-[350px] sm:h-[450px] md:h-[600px] lg:h-[700px] overflow-hidden bg-foreground">
       {slides.map((slide, i) => {
         const isActive = current === i;
         const isPrev = previous === i;
@@ -99,7 +99,7 @@ const HeroCarousel = () => {
                 transition: "opacity 0.7s cubic-bezier(0.16,1,0.3,1) 0.25s, transform 0.7s cubic-bezier(0.16,1,0.3,1) 0.25s",
               }}
             >
-              <h2 className="text-primary-foreground text-4xl md:text-6xl lg:text-7xl font-display font-bold mb-5 tracking-wider leading-[1.1]">
+              <h2 className="text-primary-foreground text-2xl sm:text-3xl md:text-5xl lg:text-7xl font-display font-bold mb-3 sm:mb-5 tracking-wider leading-[1.1]">
                 {slides[current].title}
               </h2>
             </div>
@@ -110,7 +110,7 @@ const HeroCarousel = () => {
                 transition: "opacity 0.7s cubic-bezier(0.16,1,0.3,1) 0.4s, transform 0.7s cubic-bezier(0.16,1,0.3,1) 0.4s",
               }}
             >
-              <p className="text-primary-foreground/70 font-body text-sm md:text-base max-w-md mb-10 leading-relaxed">
+              <p className="text-primary-foreground/70 font-body text-xs sm:text-sm md:text-base max-w-md mb-6 sm:mb-10 leading-relaxed">
                 {slides[current].desc}
               </p>
             </div>
