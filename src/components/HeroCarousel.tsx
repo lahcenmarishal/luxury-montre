@@ -38,7 +38,7 @@ const HeroCarousel = () => {
   }, [current, goTo]);
 
   return (
-    <section className="relative h-[550px] md:h-[700px] overflow-hidden bg-foreground">
+    <section className="relative h-[350px] sm:h-[450px] md:h-[600px] lg:h-[700px] overflow-hidden bg-foreground">
       {slides.map((slide, i) => {
         const isActive = current === i;
         const isPrev = previous === i;
