@@ -44,13 +44,20 @@ const CategoryPage = () => {
 
   const isMontres = categorySlug === "montres";
 
-  // For montres: separate Glycine from "Autres Marques"
+  // For montres: use DB products
+  const glycineDbProducts = dbProducts.filter(p => p.brand?.toLowerCase() === "glycine");
+  const glycineModels = [...new Set(glycineDbProducts.map(p => p.model).filter(Boolean))] as string[];
+  const glycineReferences = glycineDbProducts.map(p => ({ ref: p.reference, name: p.name, id: p.id }));
+
+  // Also merge static glycine products as fallback
+  const staticGlycineProducts = allProducts.filter(p => p.brand === "Glycine");
+
+  // Use DB products if available, otherwise fallback to static
+  const displayGlycineProducts = glycineDbProducts.length > 0 ? glycineDbProducts : [];
+
   const glycineSubcategory = category.subcategories.find(s => s.slug === "glycine");
   const genderSubcategories = category.subcategories.filter(s => s.slug === "homme" || s.slug === "femme");
   const autresMarquesSubcategories = category.subcategories.filter(s => ["seiko", "fossil", "casio"].includes(s.slug));
-  const glycineModels = getGlycineModels();
-  const glycineProducts = allProducts.filter(p => p.brand === "Glycine");
-  const glycineReferences = glycineProducts.map(p => ({ ref: p.reference, name: p.name, id: p.id }));
 
   return (
     <div className="min-h-screen bg-background">
