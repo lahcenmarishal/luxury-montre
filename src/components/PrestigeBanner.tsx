@@ -9,7 +9,7 @@ const PrestigeBanner = () => (
       <div className="section-container">
         <ScrollReveal direction="left">
           <p className="text-primary-foreground/70 text-xs tracking-[0.3em] font-body mb-3">LuxuryMontre</p>
-          <h2 className="text-primary-foreground text-3xl md:text-5xl font-display font-bold tracking-wider leading-tight mb-6">
+          <h2 className="text-primary-foreground text-2xl sm:text-3xl md:text-5xl font-display font-bold tracking-wider leading-tight mb-4 sm:mb-6">
             UN SYMBOLE DE<br />PRESTIGE ET D'ÉLÉGANCE
           </h2>
           <a href="/categorie/montres" className="btn-shop-outline">DÉCOUVRIR</a>

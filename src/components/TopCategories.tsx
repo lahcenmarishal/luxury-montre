@@ -10,7 +10,7 @@ const TopCategories = () => (
       <div className="section-container w-full flex flex-col md:flex-row items-start md:items-center justify-between">
         <ScrollReveal direction="left">
           <div className="max-w-md">
-            <h2 className="text-primary-foreground text-3xl md:text-4xl font-display font-bold tracking-wider mb-4">NOS CATÉGORIES</h2>
+            <h2 className="text-primary-foreground text-2xl sm:text-3xl md:text-4xl font-display font-bold tracking-wider mb-3 sm:mb-4">NOS CATÉGORIES</h2>
             <p className="text-primary-foreground/70 font-body text-sm leading-relaxed mb-6">
               Montres, bijoux et accessoires de luxe — explorez notre univers et trouvez la pièce qui vous correspond.
             </p>
