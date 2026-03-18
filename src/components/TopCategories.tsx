@@ -3,7 +3,7 @@ import ScrollReveal from "./ScrollReveal";
 import topCatBg from "@/assets/top-categories-bg.jpg";
 
 const TopCategories = () => (
-  <section className="relative h-[350px] md:h-[400px] overflow-hidden">
+  <section className="relative h-[280px] sm:h-[350px] md:h-[400px] overflow-hidden">
     <img src={topCatBg} alt="Top Categories" className="w-full h-full object-cover" />
     <div className="absolute inset-0 bg-foreground/70" />
     <div className="absolute inset-0 flex items-center">
