@@ -94,7 +94,7 @@ const AdminDashboard = () => {
         const { error } = await supabase.from("products").update(payload).eq("id", editingId);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("products").insert(payload);
+        const { error } = await supabase.from("products").insert(payload as any);
         if (error) throw error;
       }
     },
