@@ -170,7 +170,7 @@ const CategoryPage = () => {
                 <h2 className="text-2xl font-display font-bold mb-6 tracking-wider">Autres Marques</h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {autresMarquesSubcategories.map((sub) => {
-                    const brandProducts = allProducts.filter(p => p.category === "montres" && p.brand.toLowerCase() === sub.slug);
+                    const brandProducts = dbProducts.filter(p => p.brand?.toLowerCase() === sub.slug);
                     return (
                       <Link key={sub.slug} to={`/categorie/montres/${sub.slug}`} className="group relative h-[200px] overflow-hidden bg-secondary">
                         <img src={sub.image} alt={sub.name} className="w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-110" />
