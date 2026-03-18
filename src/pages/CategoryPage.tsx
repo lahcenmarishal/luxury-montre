@@ -1,15 +1,32 @@
 import { useParams, Link } from "react-router-dom";
-import { getCategoryBySlug, getProductsByCategory, getGlycineModels, products as allProducts } from "@/data/products";
+import { getCategoryBySlug, getProductsByCategory, products as allProducts } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
 import TopBar from "@/components/TopBar";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ChevronRight } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const CategoryPage = () => {
   const { categorySlug } = useParams<{ categorySlug: string }>();
   const category = getCategoryBySlug(categorySlug || "");
   const categoryProducts = getProductsByCategory(categorySlug || "");
+
+  // Fetch products from DB for montres category
+  const { data: dbProducts = [] } = useQuery({
+    queryKey: ["db-products-montres"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("category", "montres")
+        .eq("is_active", true);
+      if (error) throw error;
+      return data;
+    },
+    enabled: categorySlug === "montres",
+  });
 
   if (!category) {
     return (
