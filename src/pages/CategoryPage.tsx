@@ -125,7 +125,7 @@ const CategoryPage = () => {
                     <h3 className="text-lg font-display font-semibold mb-4 tracking-wider">Modèles</h3>
                     <div className="flex flex-wrap gap-3">
                       {glycineModels.map((model) => {
-                        const modelProducts = allProducts.filter(p => p.brand === "Glycine" && p.model === model);
+                        const modelProducts = glycineDbProducts.filter(p => p.model === model);
                         return (
                           <Link
                             key={model}
