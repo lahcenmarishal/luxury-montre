@@ -21,7 +21,8 @@ const navItems: NavItem[] = [
     href: "/categorie/montres",
     submenu: [
       { title: "Par Genre", items: [{ label: "Homme", href: "/categorie/montres/homme" }, { label: "Femme", href: "/categorie/montres/femme" }] },
-      { title: "Par Marque", items: [{ label: "Glycine", href: "/categorie/montres/glycine" }, { label: "Seiko", href: "/categorie/montres/seiko" }, { label: "Fossil", href: "/categorie/montres/fossil" }, { label: "Casio", href: "/categorie/montres/casio" }] },
+      { title: "Glycine", items: [{ label: "Modèles", href: "/categorie/montres/glycine" }, { label: "Références", href: "/categorie/montres/glycine/references" }] },
+      { title: "Autres Marques", items: [{ label: "Seiko", href: "/categorie/montres/seiko" }, { label: "Fossil", href: "/categorie/montres/fossil" }, { label: "Casio", href: "/categorie/montres/casio" }] },
     ],
   },
   {

@@ -5,7 +5,7 @@ const TopBar = () => (
     <div className="section-container flex justify-between items-center">
       <span className="flex items-center gap-2">
         <Truck className="w-3 h-3" />
-        Livraison gratuite dès 500 MAD | 30 MAD pour les commandes de moins de 500 MAD
+        Livraison gratuite dès 500 MAD
       </span>
       <span className="flex items-center gap-2">
         <Phone className="w-3 h-3" />
