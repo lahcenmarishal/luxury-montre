@@ -606,6 +606,45 @@ const AdminDashboard = () => {
             </div>
           </div>
         )}
+
+        {tab === "settings" && (
+          <div>
+            <h2 className="text-2xl font-display font-bold text-foreground mb-6">Paramètres</h2>
+            <div className="bg-background border border-border p-6 max-w-lg">
+              <h3 className="text-lg font-display font-semibold mb-4">Réseaux sociaux & Contact</h3>
+              <p className="text-sm text-muted-foreground font-body mb-6">Ces liens seront affichés dans le pied de page du site.</p>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label className="font-body">WhatsApp (numéro ou lien)</Label>
+                  <Input
+                    placeholder="Ex: +212600000000 ou https://wa.me/212600000000"
+                    value={socialLinks.whatsapp}
+                    onChange={e => setSocialLinks(prev => ({ ...prev, whatsapp: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="font-body">Instagram (lien du profil)</Label>
+                  <Input
+                    placeholder="Ex: https://instagram.com/votre_compte"
+                    value={socialLinks.instagram}
+                    onChange={e => setSocialLinks(prev => ({ ...prev, instagram: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="font-body">Facebook (lien de la page)</Label>
+                  <Input
+                    placeholder="Ex: https://facebook.com/votre_page"
+                    value={socialLinks.facebook}
+                    onChange={e => setSocialLinks(prev => ({ ...prev, facebook: e.target.value }))}
+                  />
+                </div>
+                <Button onClick={saveSocialLinks} disabled={savingSettings} className="mt-4">
+                  {savingSettings ? "Enregistrement..." : "Enregistrer"}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
