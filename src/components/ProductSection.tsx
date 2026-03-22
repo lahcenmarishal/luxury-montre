@@ -37,6 +37,7 @@ const ProductSection = () => {
           <ScrollReveal key={p.id} delay={i * 80}>
             <Link to={`/produit/${p.id}`}>
               <ProductCard
+                id={p.id}
                 image={p.image}
                 hoverImage={p.hoverImage}
                 brand={p.brand}

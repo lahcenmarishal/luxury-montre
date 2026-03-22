@@ -113,7 +113,7 @@ const CategoryPage = () => {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                     {displayGlycineProducts.map((p) => (
                       <Link key={p.id} to={`/produit/${p.id}`}>
-                        <ProductCard image={p.image_url || ""} hoverImage={p.hover_image_url || ""} brand={p.brand} name={p.name} price={p.price} oldPrice={p.old_price ?? undefined} badge={p.badge_type ? { type: p.badge_type as "hot" | "sale", label: p.badge_label || "" } : undefined} />
+                        <ProductCard id={p.id} image={p.image_url || ""} hoverImage={p.hover_image_url || ""} brand={p.brand} name={p.name} price={p.price} oldPrice={p.old_price ?? undefined} badge={p.badge_type ? { type: p.badge_type as "hot" | "sale", label: p.badge_label || "" } : undefined} />
                       </Link>
                     ))}
                   </div>
