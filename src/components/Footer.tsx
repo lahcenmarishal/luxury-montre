@@ -15,11 +15,14 @@ const Footer = () => {
     staleTime: 60000,
   });
 
-  const whatsappLink = socialLinks?.whatsapp
-    ? socialLinks.whatsapp.startsWith("http") ? socialLinks.whatsapp : `https://wa.me/${socialLinks.whatsapp.replace(/[^0-9]/g, "")}`
+  const whatsappLink = settings?.whatsapp
+    ? settings.whatsapp.startsWith("http") ? settings.whatsapp : `https://wa.me/${settings.whatsapp.replace(/[^0-9]/g, "")}`
     : "#";
-  const instagramLink = socialLinks?.instagram || "#";
-  const facebookLink = socialLinks?.facebook || "#";
+  const instagramLink = settings?.instagram || "#";
+  const facebookLink = settings?.facebook || "#";
+  const phone = settings?.phone || "+212 660 304 856";
+  const email = settings?.email || "contact@luxurymontre.com";
+  const address = settings?.address || "Maroc";
 
   return (
     <footer className="bg-primary text-primary-foreground pt-12 pb-6">
