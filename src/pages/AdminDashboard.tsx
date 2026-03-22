@@ -127,7 +127,10 @@ const AdminDashboard = () => {
     setSavingSettings(true);
     try {
       for (const [key, value] of Object.entries(socialLinks)) {
-        await supabase.from("site_settings").update({ value, updated_at: new Date().toISOString() }).eq("key", key);
+        const { error: updateError } = await supabase.from("site_settings").update({ value, updated_at: new Date().toISOString() }).eq("key", key);
+        if (updateError) {
+          await supabase.from("site_settings").insert({ key, value } as any);
+        }
       }
       toast({ title: "Coordonnées mises à jour" });
     } catch (err: any) {
