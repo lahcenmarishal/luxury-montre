@@ -13,6 +13,8 @@ import ServicesPage from "./pages/ServicesPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
+import FavoritesPage from "./pages/FavoritesPage";
+import ReferencesPage from "./pages/ReferencesPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +34,8 @@ const App = () => (
             <Route path="/produit/:productId" element={<ProductPage />} />
             <Route path="/services" element={<ServicesPage />} />
             <Route path="/commande" element={<CheckoutPage />} />
+            <Route path="/favoris" element={<FavoritesPage />} />
+            <Route path="/references/:brandSlug" element={<ReferencesPage />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="*" element={<NotFound />} />
