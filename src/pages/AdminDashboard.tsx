@@ -70,7 +70,7 @@ const AdminDashboard = () => {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [hoverImageFile, setHoverImageFile] = useState<File | null>(null);
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
-  const [socialLinks, setSocialLinks] = useState({ whatsapp: "", instagram: "", facebook: "" });
+  const [socialLinks, setSocialLinks] = useState({ whatsapp: "", instagram: "", facebook: "", phone: "", email: "", address: "" });
   const [savingSettings, setSavingSettings] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   // Brand state
@@ -117,7 +117,7 @@ const AdminDashboard = () => {
       if (data) {
         const map: Record<string, string> = {};
         data.forEach((r: any) => { map[r.key] = r.value; });
-        setSocialLinks({ whatsapp: map.whatsapp || "", instagram: map.instagram || "", facebook: map.facebook || "" });
+        setSocialLinks({ whatsapp: map.whatsapp || "", instagram: map.instagram || "", facebook: map.facebook || "", phone: map.phone || "", email: map.email || "", address: map.address || "" });
       }
     };
     loadSettings();
@@ -127,7 +127,10 @@ const AdminDashboard = () => {
     setSavingSettings(true);
     try {
       for (const [key, value] of Object.entries(socialLinks)) {
-        await supabase.from("site_settings").update({ value, updated_at: new Date().toISOString() }).eq("key", key);
+        const { error: updateError } = await supabase.from("site_settings").update({ value, updated_at: new Date().toISOString() }).eq("key", key);
+        if (updateError) {
+          await supabase.from("site_settings").insert({ key, value } as any);
+        }
       }
       toast({ title: "Coordonnées mises à jour" });
     } catch (err: any) {
@@ -700,9 +703,12 @@ const AdminDashboard = () => {
           <div>
             <h2 className="text-xl sm:text-2xl font-display font-bold text-foreground mb-6">Paramètres</h2>
             <div className="bg-background border border-border p-4 sm:p-6 max-w-lg">
-              <h3 className="text-lg font-display font-semibold mb-4">Réseaux sociaux & Contact</h3>
-              <p className="text-sm text-muted-foreground font-body mb-6">Ces liens seront affichés dans le pied de page du site.</p>
+              <h3 className="text-lg font-display font-semibold mb-4">Coordonnées & Réseaux sociaux</h3>
+              <p className="text-sm text-muted-foreground font-body mb-6">Ces informations seront affichées dans le pied de page et la barre supérieure du site.</p>
               <div className="space-y-4">
+                <div className="space-y-2"><Label className="font-body">Téléphone</Label><Input placeholder="Ex: +212 660 000 000" value={socialLinks.phone} onChange={e => setSocialLinks(prev => ({ ...prev, phone: e.target.value }))} /></div>
+                <div className="space-y-2"><Label className="font-body">Email</Label><Input placeholder="Ex: contact@luxurymontre.com" value={socialLinks.email} onChange={e => setSocialLinks(prev => ({ ...prev, email: e.target.value }))} /></div>
+                <div className="space-y-2"><Label className="font-body">Adresse</Label><Input placeholder="Ex: Casablanca, Maroc" value={socialLinks.address} onChange={e => setSocialLinks(prev => ({ ...prev, address: e.target.value }))} /></div>
                 <div className="space-y-2"><Label className="font-body">WhatsApp (numéro ou lien)</Label><Input placeholder="Ex: +212600000000" value={socialLinks.whatsapp} onChange={e => setSocialLinks(prev => ({ ...prev, whatsapp: e.target.value }))} /></div>
                 <div className="space-y-2"><Label className="font-body">Instagram (lien du profil)</Label><Input placeholder="Ex: https://instagram.com/votre_compte" value={socialLinks.instagram} onChange={e => setSocialLinks(prev => ({ ...prev, instagram: e.target.value }))} /></div>
                 <div className="space-y-2"><Label className="font-body">Facebook (lien de la page)</Label><Input placeholder="Ex: https://facebook.com/votre_page" value={socialLinks.facebook} onChange={e => setSocialLinks(prev => ({ ...prev, facebook: e.target.value }))} /></div>

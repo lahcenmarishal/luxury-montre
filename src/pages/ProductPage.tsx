@@ -1,11 +1,12 @@
 import { useParams, Link } from "react-router-dom";
 import { getProductById, getCategoryBySlug, products } from "@/data/products";
+import { useToast } from "@/hooks/use-toast";
 import TopBar from "@/components/TopBar";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { ChevronRight, Heart, ShoppingBag, Minus, Plus, Truck, Shield, RotateCcw } from "lucide-react";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useCart } from "@/contexts/CartContext";
 
 const formatMAD = (amount: number) => `${amount.toLocaleString("fr-MA")} MAD`;
@@ -16,11 +17,27 @@ const ProductPage = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const { addItem } = useCart();
+  const { toast } = useToast();
 
   const handleAddToCart = () => {
     if (!product) return;
     addItem({ id: product.id, name: product.name, brand: product.brand, price: product.price, image: product.image }, quantity);
   };
+
+  const handleAddToFavorites = useCallback(() => {
+    if (!product) return;
+    try {
+      const favs: string[] = JSON.parse(localStorage.getItem("favorites") || "[]");
+      if (favs.includes(product.id)) {
+        localStorage.setItem("favorites", JSON.stringify(favs.filter(f => f !== product.id)));
+        toast({ title: "Retiré des favoris", description: product.name });
+      } else {
+        localStorage.setItem("favorites", JSON.stringify([...favs, product.id]));
+        toast({ title: "Ajouté aux favoris", description: product.name });
+      }
+      window.dispatchEvent(new Event("favorites-updated"));
+    } catch {}
+  }, [product, toast]);
 
   if (!product) {
     return (
@@ -117,7 +134,7 @@ const ProductPage = () => {
               </button>
             </div>
 
-            <button className="flex items-center gap-2 text-xs font-body text-muted-foreground hover:text-accent transition-colors mb-8">
+            <button onClick={handleAddToFavorites} className="flex items-center gap-2 text-xs font-body text-muted-foreground hover:text-accent transition-colors mb-8">
               <Heart className="w-4 h-4" /> Ajouter aux favoris
             </button>
 

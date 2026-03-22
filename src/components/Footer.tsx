@@ -4,10 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 
 const Footer = () => {
-  const { data: socialLinks } = useQuery({
-    queryKey: ["site-settings-social"],
+  const { data: settings } = useQuery({
+    queryKey: ["site-settings-footer"],
     queryFn: async () => {
-      const { data } = await supabase.from("site_settings").select("key, value").in("key", ["whatsapp", "instagram", "facebook"]);
+      const { data } = await supabase.from("site_settings").select("key, value").in("key", ["whatsapp", "instagram", "facebook", "phone", "email", "address"]);
       const map: Record<string, string> = {};
       data?.forEach((r: any) => { map[r.key] = r.value; });
       return map;
@@ -15,11 +15,14 @@ const Footer = () => {
     staleTime: 60000,
   });
 
-  const whatsappLink = socialLinks?.whatsapp
-    ? socialLinks.whatsapp.startsWith("http") ? socialLinks.whatsapp : `https://wa.me/${socialLinks.whatsapp.replace(/[^0-9]/g, "")}`
+  const whatsappLink = settings?.whatsapp
+    ? settings.whatsapp.startsWith("http") ? settings.whatsapp : `https://wa.me/${settings.whatsapp.replace(/[^0-9]/g, "")}`
     : "#";
-  const instagramLink = socialLinks?.instagram || "#";
-  const facebookLink = socialLinks?.facebook || "#";
+  const instagramLink = settings?.instagram || "#";
+  const facebookLink = settings?.facebook || "#";
+  const phone = settings?.phone || "+212 660 304 856";
+  const email = settings?.email || "contact@luxurymontre.com";
+  const address = settings?.address || "Maroc";
 
   return (
     <footer className="bg-primary text-primary-foreground pt-12 pb-6">
@@ -65,15 +68,15 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-center gap-2 text-xs text-primary-foreground/60 font-body">
                 <Phone className="w-3.5 h-3.5 flex-shrink-0" />
-                <a href="tel:+212660304856" className="hover:text-accent transition-colors">+212 660 304 856</a>
+                <a href={`tel:${phone.replace(/\s/g, "")}`} className="hover:text-accent transition-colors">{phone}</a>
               </li>
               <li className="flex items-center gap-2 text-xs text-primary-foreground/60 font-body">
                 <Mail className="w-3.5 h-3.5 flex-shrink-0" />
-                <span>contact@luxurymontre.com</span>
+                <span>{email}</span>
               </li>
               <li className="flex items-start gap-2 text-xs text-primary-foreground/60 font-body">
                 <MapPin className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
-                <span>Maroc</span>
+                <span>{address}</span>
               </li>
             </ul>
 
