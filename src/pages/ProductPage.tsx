@@ -144,7 +144,7 @@ const ProductPage = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {relatedProducts.map((p) => (
                 <Link key={p.id} to={`/produit/${p.id}`}>
-                  <ProductCard image={p.image} hoverImage={p.hoverImage} brand={p.brand} name={p.name} price={p.price} oldPrice={p.oldPrice} badge={p.badge} />
+                  <ProductCard id={p.id} image={p.image} hoverImage={p.hoverImage} brand={p.brand} name={p.name} price={p.price} oldPrice={p.oldPrice} badge={p.badge} />
                 </Link>
               ))}
             </div>

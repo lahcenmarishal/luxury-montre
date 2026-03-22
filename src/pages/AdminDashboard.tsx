@@ -407,7 +407,17 @@ const AdminDashboard = () => {
                   <DialogHeader><DialogTitle>{editingId ? "Modifier le produit" : "Nouveau produit"}</DialogTitle></DialogHeader>
                   <form onSubmit={(e) => { e.preventDefault(); saveMutation.mutate(); }} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-2"><Label>Nom *</Label><Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required /></div>
-                    <div className="space-y-2"><Label>Marque *</Label><Input value={form.brand} onChange={e => setForm({ ...form, brand: e.target.value })} required /></div>
+                    <div className="space-y-2">
+                      <Label>Marque *</Label>
+                      <Select value={form.brand} onValueChange={v => setForm({ ...form, brand: v })}>
+                        <SelectTrigger><SelectValue placeholder="Sélectionner une marque" /></SelectTrigger>
+                        <SelectContent>
+                          {brands.map((b: any) => (
+                            <SelectItem key={b.id} value={b.name}>{b.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                     <div className="space-y-2"><Label>Prix *</Label><Input type="number" value={form.price} onChange={e => setForm({ ...form, price: e.target.value })} required /></div>
                     <div className="space-y-2"><Label>Ancien prix</Label><Input type="number" value={form.old_price} onChange={e => setForm({ ...form, old_price: e.target.value })} /></div>
                     <div className="space-y-2">

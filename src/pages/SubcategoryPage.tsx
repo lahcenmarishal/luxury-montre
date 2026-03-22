@@ -49,6 +49,7 @@ const SubcategoryPage = () => {
             {subcategoryProducts.map((p) => (
               <Link key={p.id} to={`/produit/${p.id}`}>
                 <ProductCard
+                  id={p.id}
                   image={p.image}
                   hoverImage={p.hoverImage}
                   brand={p.brand}
