@@ -4,10 +4,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 
 const Footer = () => {
-  const { data: socialLinks } = useQuery({
-    queryKey: ["site-settings-social"],
+  const { data: settings } = useQuery({
+    queryKey: ["site-settings-footer"],
     queryFn: async () => {
-      const { data } = await supabase.from("site_settings").select("key, value").in("key", ["whatsapp", "instagram", "facebook"]);
+      const { data } = await supabase.from("site_settings").select("key, value").in("key", ["whatsapp", "instagram", "facebook", "phone", "email", "address"]);
       const map: Record<string, string> = {};
       data?.forEach((r: any) => { map[r.key] = r.value; });
       return map;
