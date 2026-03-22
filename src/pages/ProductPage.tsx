@@ -17,11 +17,27 @@ const ProductPage = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const { addItem } = useCart();
+  const { toast } = useToast();
 
   const handleAddToCart = () => {
     if (!product) return;
     addItem({ id: product.id, name: product.name, brand: product.brand, price: product.price, image: product.image }, quantity);
   };
+
+  const handleAddToFavorites = useCallback(() => {
+    if (!product) return;
+    try {
+      const favs: string[] = JSON.parse(localStorage.getItem("favorites") || "[]");
+      if (favs.includes(product.id)) {
+        localStorage.setItem("favorites", JSON.stringify(favs.filter(f => f !== product.id)));
+        toast({ title: "Retiré des favoris", description: product.name });
+      } else {
+        localStorage.setItem("favorites", JSON.stringify([...favs, product.id]));
+        toast({ title: "Ajouté aux favoris", description: product.name });
+      }
+      window.dispatchEvent(new Event("favorites-updated"));
+    } catch {}
+  }, [product, toast]);
 
   if (!product) {
     return (
