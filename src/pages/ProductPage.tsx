@@ -134,7 +134,7 @@ const ProductPage = () => {
               </button>
             </div>
 
-            <button className="flex items-center gap-2 text-xs font-body text-muted-foreground hover:text-accent transition-colors mb-8">
+            <button onClick={handleAddToFavorites} className="flex items-center gap-2 text-xs font-body text-muted-foreground hover:text-accent transition-colors mb-8">
               <Heart className="w-4 h-4" /> Ajouter aux favoris
             </button>
 
