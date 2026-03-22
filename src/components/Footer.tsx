@@ -68,15 +68,15 @@ const Footer = () => {
             <ul className="space-y-3">
               <li className="flex items-center gap-2 text-xs text-primary-foreground/60 font-body">
                 <Phone className="w-3.5 h-3.5 flex-shrink-0" />
-                <a href="tel:+212660304856" className="hover:text-accent transition-colors">+212 660 304 856</a>
+                <a href={`tel:${phone.replace(/\s/g, "")}`} className="hover:text-accent transition-colors">{phone}</a>
               </li>
               <li className="flex items-center gap-2 text-xs text-primary-foreground/60 font-body">
                 <Mail className="w-3.5 h-3.5 flex-shrink-0" />
-                <span>contact@luxurymontre.com</span>
+                <span>{email}</span>
               </li>
               <li className="flex items-start gap-2 text-xs text-primary-foreground/60 font-body">
                 <MapPin className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" />
-                <span>Maroc</span>
+                <span>{address}</span>
               </li>
             </ul>
 
