@@ -218,6 +218,17 @@ const AdminDashboard = () => {
     },
   });
 
+  const deleteOrder = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("orders").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
+      toast({ title: "Commande supprimée" });
+    },
+  });
+
   // Brand mutations
   const saveBrandMutation = useMutation({
     mutationFn: async () => {
