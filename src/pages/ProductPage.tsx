@@ -1,5 +1,6 @@
 import { useParams, Link } from "react-router-dom";
 import { getProductById, getCategoryBySlug, products } from "@/data/products";
+import { useToast } from "@/hooks/use-toast";
 import TopBar from "@/components/TopBar";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
