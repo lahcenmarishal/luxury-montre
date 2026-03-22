@@ -698,6 +698,7 @@ const AdminDashboard = () => {
                                 </div>
                               </DialogContent>
                             </Dialog>
+                            <Button size="sm" variant="ghost" className="text-destructive hover:text-destructive" onClick={() => { if (confirm("Supprimer cette commande ?")) deleteOrder.mutate(o.id); }}><Trash2 className="w-4 h-4" /></Button>
                           </TableCell>
                         </TableRow>
                       ))}
