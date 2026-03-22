@@ -117,7 +117,7 @@ const AdminDashboard = () => {
       if (data) {
         const map: Record<string, string> = {};
         data.forEach((r: any) => { map[r.key] = r.value; });
-        setSocialLinks({ whatsapp: map.whatsapp || "", instagram: map.instagram || "", facebook: map.facebook || "" });
+        setSocialLinks({ whatsapp: map.whatsapp || "", instagram: map.instagram || "", facebook: map.facebook || "", phone: map.phone || "", email: map.email || "", address: map.address || "" });
       }
     };
     loadSettings();
