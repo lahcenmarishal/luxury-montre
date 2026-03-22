@@ -6,7 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { ChevronRight, Heart, ShoppingBag, Minus, Plus, Truck, Shield, RotateCcw } from "lucide-react";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useCart } from "@/contexts/CartContext";
 
 const formatMAD = (amount: number) => `${amount.toLocaleString("fr-MA")} MAD`;
