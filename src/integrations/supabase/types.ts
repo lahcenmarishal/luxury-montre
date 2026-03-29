@@ -50,6 +50,45 @@ export type Database = {
         }
         Relationships: []
       }
+      hero_slides: {
+        Row: {
+          created_at: string | null
+          description: string
+          id: string
+          image_url: string | null
+          is_active: boolean
+          link: string
+          sort_order: number
+          subtitle: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          link?: string
+          sort_order?: number
+          subtitle?: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          link?: string
+          sort_order?: number
+          subtitle?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           city: string | null
