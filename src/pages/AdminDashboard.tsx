@@ -125,7 +125,7 @@ const AdminDashboard = () => {
     enabled: isAdmin,
   });
 
-
+  useEffect(() => {
     if (!isAdmin) return;
     const loadSettings = async () => {
       const { data } = await supabase.from("site_settings").select("key, value");
