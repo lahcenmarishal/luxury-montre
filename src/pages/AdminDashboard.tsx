@@ -77,6 +77,11 @@ const AdminDashboard = () => {
   const [brandDialogOpen, setBrandDialogOpen] = useState(false);
   const [brandForm, setBrandForm] = useState<BrandForm>(emptyBrandForm);
   const [editingBrandId, setEditingBrandId] = useState<string | null>(null);
+  // Carousel state
+  const [slideDialogOpen, setSlideDialogOpen] = useState(false);
+  const [slideForm, setSlideForm] = useState({ title: "", subtitle: "", description: "", link: "/", sort_order: 0, is_active: true });
+  const [slideImageFile, setSlideImageFile] = useState<File | null>(null);
+  const [editingSlideId, setEditingSlideId] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
