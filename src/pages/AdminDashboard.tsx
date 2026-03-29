@@ -285,7 +285,54 @@ const AdminDashboard = () => {
     },
   });
 
-  const openEdit = (product: any) => {
+  // Carousel mutations
+  const saveSlideMutation = useMutation({
+    mutationFn: async () => {
+      let image_url: string | undefined;
+      if (slideImageFile) image_url = await uploadImage(slideImageFile);
+      const payload: Record<string, unknown> = {
+        title: slideForm.title, subtitle: slideForm.subtitle,
+        description: slideForm.description, link: slideForm.link,
+        sort_order: slideForm.sort_order, is_active: slideForm.is_active,
+      };
+      if (image_url) payload.image_url = image_url;
+      if (editingSlideId) {
+        const { error } = await supabase.from("hero_slides").update(payload).eq("id", editingSlideId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("hero_slides").insert(payload as any);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-hero-slides"] });
+      queryClient.invalidateQueries({ queryKey: ["hero-slides"] });
+      setSlideDialogOpen(false); setSlideForm({ title: "", subtitle: "", description: "", link: "/", sort_order: 0, is_active: true }); setEditingSlideId(null); setSlideImageFile(null);
+      toast({ title: editingSlideId ? "Slide modifié" : "Slide ajouté" });
+    },
+    onError: (err: Error) => toast({ title: "Erreur", description: err.message, variant: "destructive" }),
+  });
+
+  const deleteSlideMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("hero_slides").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-hero-slides"] });
+      queryClient.invalidateQueries({ queryKey: ["hero-slides"] });
+      toast({ title: "Slide supprimé" });
+    },
+  });
+
+  const openSlideEdit = (slide: any) => {
+    setEditingSlideId(slide.id);
+    setSlideForm({ title: slide.title, subtitle: slide.subtitle || "", description: slide.description || "", link: slide.link || "/", sort_order: slide.sort_order ?? 0, is_active: slide.is_active ?? true });
+    setSlideImageFile(null);
+    setSlideDialogOpen(true);
+  };
+
+
     setEditingId(product.id);
     setForm({
       name: product.name, brand: product.brand,
