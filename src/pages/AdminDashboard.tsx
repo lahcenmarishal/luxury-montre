@@ -1,6 +1,6 @@
 import { useAdmin } from "@/hooks/useAdmin";
 import { useState, useEffect } from "react";
-import { Package, ShoppingCart, BarChart3, LogOut, Plus, Pencil, Trash2, Eye, ArrowLeft, X, ImagePlus, Settings, Menu, Tag } from "lucide-react";
+import { Package, ShoppingCart, BarChart3, LogOut, Plus, Pencil, Trash2, Eye, ArrowLeft, X, ImagePlus, Settings, Menu, Tag, Image, ArrowUp, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,7 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Link } from "react-router-dom";
 
-type Tab = "overview" | "products" | "orders" | "brands" | "settings";
+type Tab = "overview" | "products" | "orders" | "brands" | "carousel" | "settings";
 
 interface ProductForm {
   name: string; brand: string; price: string; old_price: string;
@@ -77,6 +77,11 @@ const AdminDashboard = () => {
   const [brandDialogOpen, setBrandDialogOpen] = useState(false);
   const [brandForm, setBrandForm] = useState<BrandForm>(emptyBrandForm);
   const [editingBrandId, setEditingBrandId] = useState<string | null>(null);
+  // Carousel state
+  const [slideDialogOpen, setSlideDialogOpen] = useState(false);
+  const [slideForm, setSlideForm] = useState({ title: "", subtitle: "", description: "", link: "/", sort_order: 0, is_active: true });
+  const [slideImageFile, setSlideImageFile] = useState<File | null>(null);
+  const [editingSlideId, setEditingSlideId] = useState<string | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -104,6 +109,16 @@ const AdminDashboard = () => {
     queryKey: ["admin-brands"],
     queryFn: async () => {
       const { data, error } = await supabase.from("brands").select("*").order("name");
+      if (error) throw error;
+      return data;
+    },
+    enabled: isAdmin,
+  });
+
+  const { data: heroSlides = [] } = useQuery({
+    queryKey: ["admin-hero-slides"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("hero_slides").select("*").order("sort_order");
       if (error) throw error;
       return data;
     },
@@ -270,7 +285,54 @@ const AdminDashboard = () => {
     },
   });
 
-  const openEdit = (product: any) => {
+  // Carousel mutations
+  const saveSlideMutation = useMutation({
+    mutationFn: async () => {
+      let image_url: string | undefined;
+      if (slideImageFile) image_url = await uploadImage(slideImageFile);
+      const payload: Record<string, unknown> = {
+        title: slideForm.title, subtitle: slideForm.subtitle,
+        description: slideForm.description, link: slideForm.link,
+        sort_order: slideForm.sort_order, is_active: slideForm.is_active,
+      };
+      if (image_url) payload.image_url = image_url;
+      if (editingSlideId) {
+        const { error } = await supabase.from("hero_slides").update(payload).eq("id", editingSlideId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("hero_slides").insert(payload as any);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-hero-slides"] });
+      queryClient.invalidateQueries({ queryKey: ["hero-slides"] });
+      setSlideDialogOpen(false); setSlideForm({ title: "", subtitle: "", description: "", link: "/", sort_order: 0, is_active: true }); setEditingSlideId(null); setSlideImageFile(null);
+      toast({ title: editingSlideId ? "Slide modifié" : "Slide ajouté" });
+    },
+    onError: (err: Error) => toast({ title: "Erreur", description: err.message, variant: "destructive" }),
+  });
+
+  const deleteSlideMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("hero_slides").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-hero-slides"] });
+      queryClient.invalidateQueries({ queryKey: ["hero-slides"] });
+      toast({ title: "Slide supprimé" });
+    },
+  });
+
+  const openSlideEdit = (slide: any) => {
+    setEditingSlideId(slide.id);
+    setSlideForm({ title: slide.title, subtitle: slide.subtitle || "", description: slide.description || "", link: slide.link || "/", sort_order: slide.sort_order ?? 0, is_active: slide.is_active ?? true });
+    setSlideImageFile(null);
+    setSlideDialogOpen(true);
+  };
+
+
     setEditingId(product.id);
     setForm({
       name: product.name, brand: product.brand,
@@ -305,6 +367,7 @@ const AdminDashboard = () => {
     { id: "products" as Tab, label: "Produits", icon: Package },
     { id: "brands" as Tab, label: "Marques", icon: Tag },
     { id: "orders" as Tab, label: "Commandes", icon: ShoppingCart },
+    { id: "carousel" as Tab, label: "Carousel", icon: Image },
     { id: "settings" as Tab, label: "Paramètres", icon: Settings },
   ];
 
@@ -704,6 +767,73 @@ const AdminDashboard = () => {
                       ))}
                     </TableBody>
                   </Table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* CAROUSEL */}
+        {tab === "carousel" && (
+          <div>
+            <div className="flex items-center justify-between mb-6 gap-3">
+              <h2 className="text-xl sm:text-2xl font-display font-bold text-foreground">Carousel Hero</h2>
+              <Dialog open={slideDialogOpen} onOpenChange={(open) => { setSlideDialogOpen(open); if (!open) { setEditingSlideId(null); setSlideForm({ title: "", subtitle: "", description: "", link: "/", sort_order: 0, is_active: true }); setSlideImageFile(null); } }}>
+                <DialogTrigger asChild>
+                  <Button size="sm" className="text-xs sm:text-sm"><Plus className="w-4 h-4 mr-1 sm:mr-2" /> <span className="hidden sm:inline">Ajouter un slide</span><span className="sm:hidden">Ajouter</span></Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto mx-2">
+                  <DialogHeader><DialogTitle>{editingSlideId ? "Modifier le slide" : "Nouveau slide"}</DialogTitle></DialogHeader>
+                  <form onSubmit={(e) => { e.preventDefault(); saveSlideMutation.mutate(); }} className="space-y-4">
+                    <div className="space-y-2"><Label>Titre *</Label><Input value={slideForm.title} onChange={e => setSlideForm({ ...slideForm, title: e.target.value })} required placeholder="Ex: MONTRES DE LUXE" /></div>
+                    <div className="space-y-2"><Label>Sous-titre</Label><Input value={slideForm.subtitle} onChange={e => setSlideForm({ ...slideForm, subtitle: e.target.value })} placeholder="Ex: Collection Montres" /></div>
+                    <div className="space-y-2"><Label>Description</Label><Textarea value={slideForm.description} onChange={e => setSlideForm({ ...slideForm, description: e.target.value })} rows={2} placeholder="Texte descriptif du slide" /></div>
+                    <div className="space-y-2"><Label>Lien</Label><Input value={slideForm.link} onChange={e => setSlideForm({ ...slideForm, link: e.target.value })} placeholder="Ex: /categorie/montres" /></div>
+                    <div className="space-y-2"><Label>Ordre d'affichage</Label><Input type="number" value={slideForm.sort_order} onChange={e => setSlideForm({ ...slideForm, sort_order: parseInt(e.target.value) || 0 })} /></div>
+                    <div className="space-y-2">
+                      <Label>Image (résolution recommandée : 1920×750)</Label>
+                      <Input type="file" accept="image/*" onChange={e => setSlideImageFile(e.target.files?.[0] || null)} />
+                      <p className="text-xs text-muted-foreground">Pour un affichage optimal sans espaces vides, utilisez des images au ratio 1920×750 (≈2.56:1).</p>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <Label>Actif</Label>
+                      <Switch checked={slideForm.is_active} onCheckedChange={v => setSlideForm({ ...slideForm, is_active: v })} />
+                    </div>
+                    <div className="flex justify-end gap-3 pt-4">
+                      <Button type="button" variant="outline" onClick={() => setSlideDialogOpen(false)}>Annuler</Button>
+                      <Button type="submit" disabled={saveSlideMutation.isPending}>{saveSlideMutation.isPending ? "Enregistrement..." : editingSlideId ? "Modifier" : "Ajouter"}</Button>
+                    </div>
+                  </form>
+                </DialogContent>
+              </Dialog>
+            </div>
+            <p className="text-sm text-muted-foreground font-body mb-4">Gérez les slides du carousel de la page d'accueil. Résolution d'image recommandée : 1920×750 pixels.</p>
+            <div className="bg-background border border-border">
+              {heroSlides.length === 0 ? (
+                <p className="p-8 text-center text-muted-foreground font-body">Aucun slide. Commencez par en ajouter un.</p>
+              ) : (
+                <div className="space-y-3 p-4">
+                  {(heroSlides as any[]).map((slide: any) => (
+                    <div key={slide.id} className="flex items-center gap-3 sm:gap-4 border border-border p-3 bg-secondary/20">
+                      <div className="w-24 sm:w-36 h-10 sm:h-14 flex-shrink-0 bg-muted overflow-hidden">
+                        {slide.image_url ? (
+                          <img src={slide.image_url} alt={slide.title} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-[10px] text-muted-foreground">Pas d'image</div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-body font-medium text-sm truncate">{slide.title}</p>
+                        <p className="text-xs text-muted-foreground truncate">{slide.subtitle} — {slide.link}</p>
+                      </div>
+                      <Badge variant={slide.is_active ? "default" : "secondary"} className="hidden sm:flex">{slide.is_active ? "Actif" : "Inactif"}</Badge>
+                      <span className="text-xs text-muted-foreground font-mono">#{slide.sort_order}</span>
+                      <div className="flex items-center gap-1">
+                        <Button size="sm" variant="ghost" onClick={() => openSlideEdit(slide)} title="Modifier"><Pencil className="w-4 h-4" /></Button>
+                        <Button size="sm" variant="ghost" onClick={() => { if (confirm("Supprimer ce slide ?")) deleteSlideMutation.mutate(slide.id); }} title="Supprimer"><Trash2 className="w-4 h-4 text-destructive" /></Button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
