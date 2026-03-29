@@ -115,7 +115,17 @@ const AdminDashboard = () => {
     enabled: isAdmin,
   });
 
-  useEffect(() => {
+  const { data: heroSlides = [] } = useQuery({
+    queryKey: ["admin-hero-slides"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("hero_slides").select("*").order("sort_order");
+      if (error) throw error;
+      return data;
+    },
+    enabled: isAdmin,
+  });
+
+
     if (!isAdmin) return;
     const loadSettings = async () => {
       const { data } = await supabase.from("site_settings").select("key, value");
