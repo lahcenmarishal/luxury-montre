@@ -332,7 +332,7 @@ const AdminDashboard = () => {
     setSlideDialogOpen(true);
   };
 
-
+  const openEdit = (product: any) => {
     setEditingId(product.id);
     setForm({
       name: product.name, brand: product.brand,
