@@ -15,7 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Link } from "react-router-dom";
 
-type Tab = "overview" | "products" | "orders" | "brands" | "settings";
+type Tab = "overview" | "products" | "orders" | "brands" | "carousel" | "settings";
 
 interface ProductForm {
   name: string; brand: string; price: string; old_price: string;
