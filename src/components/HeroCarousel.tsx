@@ -1,13 +1,16 @@
 import { useState, useEffect, useCallback } from "react";
-import hero1 from "@/assets/hero-1.jpg";
-import heroBijoux from "@/assets/hero-bijoux.jpg";
-import heroAccessories from "@/assets/hero-accessories.jpg";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
 
-const slides = [
-  { image: hero1, subtitle: "Collection Montres", title: "MONTRES DE LUXE", desc: "Des montres d'exception alliant tradition horlogère et design contemporain.", link: "/categorie/montres" },
-  { image: heroBijoux, subtitle: "Collection Bijoux", title: "BIJOUX D'EXCEPTION", desc: "Bagues, bracelets et pièces uniques façonnées avec les matériaux les plus nobles.", link: "/categorie/bijoux" },
-  { image: heroAccessories, subtitle: "Collection Accessoires", title: "ACCESSOIRES PREMIUM", desc: "Lunettes, parfums, stylos et maroquinerie pour compléter votre style.", link: "/categorie/accessoires" },
-];
+interface HeroSlide {
+  id: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  link: string;
+  image_url: string | null;
+  sort_order: number;
+}
 
 const HeroCarousel = () => {
   const [current, setCurrent] = useState(0);
@@ -15,8 +18,21 @@ const HeroCarousel = () => {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [textVisible, setTextVisible] = useState(true);
 
+  const { data: slides = [] } = useQuery({
+    queryKey: ["hero-slides"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("hero_slides")
+        .select("*")
+        .eq("is_active", true)
+        .order("sort_order");
+      if (error) throw error;
+      return data as HeroSlide[];
+    },
+  });
+
   const goTo = useCallback((index: number) => {
-    if (isTransitioning || index === current) return;
+    if (isTransitioning || index === current || slides.length === 0) return;
     setTextVisible(false);
     setTimeout(() => {
       setPrevious(current);
@@ -28,24 +44,29 @@ const HeroCarousel = () => {
       }, 1200);
       setTimeout(() => setTextVisible(true), 400);
     }, 300);
-  }, [isTransitioning, current]);
+  }, [isTransitioning, current, slides.length]);
 
   useEffect(() => {
+    if (slides.length <= 1) return;
     const timer = setInterval(() => {
       goTo((current + 1) % slides.length);
     }, 6000);
     return () => clearInterval(timer);
-  }, [current, goTo]);
+  }, [current, goTo, slides.length]);
+
+  if (slides.length === 0) {
+    return <section className="relative w-full aspect-[1920/750] max-h-[750px] bg-foreground" />;
+  }
 
   return (
-    <section className="relative h-[350px] sm:h-[450px] md:h-[600px] lg:h-[700px] overflow-hidden bg-foreground">
+    <section className="relative w-full aspect-[1920/750] max-h-[750px] overflow-hidden bg-foreground">
       {slides.map((slide, i) => {
         const isActive = current === i;
         const isPrev = previous === i;
 
         return (
           <div
-            key={i}
+            key={slide.id}
             className="absolute inset-0"
             style={{
               opacity: isActive ? 1 : isPrev ? 1 : 0,
@@ -56,16 +77,16 @@ const HeroCarousel = () => {
             <div
               className="absolute inset-0"
               style={{
-                transform: isActive
-                  ? "scale(1)"
-                  : isPrev
-                    ? "scale(1.08)"
-                    : "scale(1.15)",
+                transform: isActive ? "scale(1)" : isPrev ? "scale(1.08)" : "scale(1.15)",
                 transition: "transform 8s cubic-bezier(0.25, 0.1, 0.25, 1)",
                 ...(isActive && { animation: "kenburns 8s ease-out forwards" }),
               }}
             >
-              <img src={slide.image} alt={slide.title} className="w-full h-full object-cover" />
+              {slide.image_url ? (
+                <img src={slide.image_url} alt={slide.title} className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-foreground to-foreground/80" />
+              )}
             </div>
             <div
               className="absolute inset-0"
@@ -81,73 +102,46 @@ const HeroCarousel = () => {
       <div className="absolute inset-0 flex items-center z-10">
         <div className="section-container">
           <div className="max-w-xl">
-            <div
-              style={{
-                opacity: textVisible ? 1 : 0,
-                transform: textVisible ? "translateY(0)" : "translateY(30px)",
-                transition: "opacity 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s, transform 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s",
-              }}
-            >
+            <div style={{ opacity: textVisible ? 1 : 0, transform: textVisible ? "translateY(0)" : "translateY(30px)", transition: "opacity 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s, transform 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s" }}>
               <p className="text-primary-foreground/60 text-xs tracking-[0.4em] font-body mb-4 uppercase">
-                {slides[current].subtitle}
+                {slides[current]?.subtitle}
               </p>
             </div>
-            <div
-              style={{
-                opacity: textVisible ? 1 : 0,
-                transform: textVisible ? "translateY(0)" : "translateY(40px)",
-                transition: "opacity 0.7s cubic-bezier(0.16,1,0.3,1) 0.25s, transform 0.7s cubic-bezier(0.16,1,0.3,1) 0.25s",
-              }}
-            >
+            <div style={{ opacity: textVisible ? 1 : 0, transform: textVisible ? "translateY(0)" : "translateY(40px)", transition: "opacity 0.7s cubic-bezier(0.16,1,0.3,1) 0.25s, transform 0.7s cubic-bezier(0.16,1,0.3,1) 0.25s" }}>
               <h2 className="text-primary-foreground text-2xl sm:text-3xl md:text-5xl lg:text-7xl font-display font-bold mb-3 sm:mb-5 tracking-wider leading-[1.1]">
-                {slides[current].title}
+                {slides[current]?.title}
               </h2>
             </div>
-            <div
-              style={{
-                opacity: textVisible ? 1 : 0,
-                transform: textVisible ? "translateY(0)" : "translateY(40px)",
-                transition: "opacity 0.7s cubic-bezier(0.16,1,0.3,1) 0.4s, transform 0.7s cubic-bezier(0.16,1,0.3,1) 0.4s",
-              }}
-            >
+            <div style={{ opacity: textVisible ? 1 : 0, transform: textVisible ? "translateY(0)" : "translateY(40px)", transition: "opacity 0.7s cubic-bezier(0.16,1,0.3,1) 0.4s, transform 0.7s cubic-bezier(0.16,1,0.3,1) 0.4s" }}>
               <p className="text-primary-foreground/70 font-body text-xs sm:text-sm md:text-base max-w-md mb-6 sm:mb-10 leading-relaxed">
-                {slides[current].desc}
+                {slides[current]?.description}
               </p>
             </div>
-            <div
-              style={{
-                opacity: textVisible ? 1 : 0,
-                transform: textVisible ? "translateY(0)" : "translateY(30px)",
-                transition: "opacity 0.7s cubic-bezier(0.16,1,0.3,1) 0.55s, transform 0.7s cubic-bezier(0.16,1,0.3,1) 0.55s",
-              }}
-            >
-              <a href={slides[current].link} className="btn-shop-outline">DÉCOUVRIR</a>
+            <div style={{ opacity: textVisible ? 1 : 0, transform: textVisible ? "translateY(0)" : "translateY(30px)", transition: "opacity 0.7s cubic-bezier(0.16,1,0.3,1) 0.55s, transform 0.7s cubic-bezier(0.16,1,0.3,1) 0.55s" }}>
+              <a href={slides[current]?.link} className="btn-shop-outline">DÉCOUVRIR</a>
             </div>
           </div>
         </div>
       </div>
 
       {/* Progress bar dots */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 z-10">
-        {slides.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => goTo(i)}
-            className="relative h-[3px] overflow-hidden transition-all duration-500"
-            style={{ width: current === i ? 48 : 24 }}
-          >
-            <span className="absolute inset-0 bg-primary-foreground/30" />
-            {current === i && (
-              <span
-                className="absolute inset-0 bg-primary-foreground"
-                style={{
-                  animation: "progressBar 6s linear forwards",
-                }}
-              />
-            )}
-          </button>
-        ))}
-      </div>
+      {slides.length > 1 && (
+        <div className="absolute bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-4 z-10">
+          {slides.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => goTo(i)}
+              className="relative h-[3px] overflow-hidden transition-all duration-500"
+              style={{ width: current === i ? 48 : 24 }}
+            >
+              <span className="absolute inset-0 bg-primary-foreground/30" />
+              {current === i && (
+                <span className="absolute inset-0 bg-primary-foreground" style={{ animation: "progressBar 6s linear forwards" }} />
+              )}
+            </button>
+          ))}
+        </div>
+      )}
     </section>
   );
 };
