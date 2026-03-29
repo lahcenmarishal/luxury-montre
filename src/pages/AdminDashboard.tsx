@@ -367,6 +367,7 @@ const AdminDashboard = () => {
     { id: "products" as Tab, label: "Produits", icon: Package },
     { id: "brands" as Tab, label: "Marques", icon: Tag },
     { id: "orders" as Tab, label: "Commandes", icon: ShoppingCart },
+    { id: "carousel" as Tab, label: "Carousel", icon: Image },
     { id: "settings" as Tab, label: "Paramètres", icon: Settings },
   ];
 
