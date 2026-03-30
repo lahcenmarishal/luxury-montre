@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { getProductById, getCategoryBySlug, products } from "@/data/products";
+import { getCategoryBySlug } from "@/data/products";
 import { useToast } from "@/hooks/use-toast";
 import TopBar from "@/components/TopBar";
 import Navbar from "@/components/Navbar";
@@ -8,20 +8,51 @@ import ProductCard from "@/components/ProductCard";
 import { ChevronRight, Heart, ShoppingBag, Minus, Plus, Truck, Shield, RotateCcw } from "lucide-react";
 import { useState, useCallback } from "react";
 import { useCart } from "@/contexts/CartContext";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const formatMAD = (amount: number) => `${amount.toLocaleString("fr-MA")} MAD`;
 
 const ProductPage = () => {
   const { productId } = useParams<{ productId: string }>();
-  const product = getProductById(productId || "");
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const { addItem } = useCart();
   const { toast } = useToast();
 
+  const { data: product, isLoading } = useQuery({
+    queryKey: ["product", productId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("id", productId || "")
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!productId,
+  });
+
+  const { data: relatedProducts = [] } = useQuery({
+    queryKey: ["related-products", product?.category, productId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .eq("category", product!.category)
+        .eq("is_active", true)
+        .neq("id", productId || "")
+        .limit(4);
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!product?.category,
+  });
+
   const handleAddToCart = () => {
     if (!product) return;
-    addItem({ id: product.id, name: product.name, brand: product.brand, price: product.price, image: product.image }, quantity);
+    addItem({ id: product.id, name: product.name, brand: product.brand, price: product.price, image: product.image_url || "" }, quantity);
   };
 
   const handleAddToFavorites = useCallback(() => {
@@ -39,6 +70,19 @@ const ProductPage = () => {
     } catch {}
   }, [product, toast]);
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <TopBar />
+        <Navbar />
+        <div className="section-container py-20 text-center">
+          <p className="text-muted-foreground font-body">Chargement...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   if (!product) {
     return (
       <div className="min-h-screen bg-background">
@@ -55,7 +99,7 @@ const ProductPage = () => {
 
   const category = getCategoryBySlug(product.category);
   const subcategory = category?.subcategories.find((s) => s.slug === product.subcategory);
-  const relatedProducts = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4);
+  const gallery = (product.gallery && product.gallery.length > 0) ? product.gallery : (product.image_url ? [product.image_url] : []);
 
   return (
     <div className="min-h-screen bg-background">
@@ -80,11 +124,15 @@ const ProductPage = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           <div>
             <div className="bg-secondary mb-4 aspect-square flex items-center justify-center overflow-hidden">
-              <img src={product.gallery[selectedImage]} alt={product.name} className="max-w-full max-h-full object-contain p-8 transition-opacity duration-300" />
+              {gallery.length > 0 ? (
+                <img src={gallery[selectedImage]} alt={product.name} className="max-w-full max-h-full object-contain p-8 transition-opacity duration-300" />
+              ) : (
+                <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground">Pas d'image</div>
+              )}
             </div>
-            {product.gallery.length > 1 && (
+            {gallery.length > 1 && (
               <div className="flex gap-3">
-                {product.gallery.map((img, i) => (
+                {gallery.map((img, i) => (
                   <button key={i} onClick={() => setSelectedImage(i)} className={`w-20 h-20 bg-secondary flex items-center justify-center overflow-hidden border-2 transition-colors ${selectedImage === i ? "border-foreground" : "border-transparent"}`}>
                     <img src={img} alt="" className="max-w-full max-h-full object-contain p-2" />
                   </button>
@@ -98,13 +146,13 @@ const ProductPage = () => {
             <h1 className="text-2xl md:text-3xl font-display font-bold tracking-wider mb-4">{product.name}</h1>
 
             <div className="flex items-center gap-3 mb-6">
-              {product.oldPrice && (
-                <span className="text-lg text-muted-foreground line-through font-body">{formatMAD(product.oldPrice)}</span>
+              {product.old_price && (
+                <span className="text-lg text-muted-foreground line-through font-body">{formatMAD(Number(product.old_price))}</span>
               )}
-              <span className="text-2xl font-body text-foreground font-bold">{formatMAD(product.price)}</span>
-              {product.badge && (
-                <span className={`px-3 py-1 text-[10px] tracking-wider font-body uppercase ${product.badge.type === "hot" ? "bg-[hsl(var(--badge-hot))] text-primary-foreground" : "bg-primary text-primary-foreground"}`}>
-                  {product.badge.label}
+              <span className="text-2xl font-body text-foreground font-bold">{formatMAD(Number(product.price))}</span>
+              {product.badge_type && (
+                <span className={`px-3 py-1 text-[10px] tracking-wider font-body uppercase ${product.badge_type === "hot" ? "bg-[hsl(var(--badge-hot))] text-primary-foreground" : "bg-primary text-primary-foreground"}`}>
+                  {product.badge_label}
                 </span>
               )}
             </div>
@@ -161,7 +209,16 @@ const ProductPage = () => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               {relatedProducts.map((p) => (
                 <Link key={p.id} to={`/produit/${p.id}`}>
-                  <ProductCard id={p.id} image={p.image} hoverImage={p.hoverImage} brand={p.brand} name={p.name} price={p.price} oldPrice={p.oldPrice} badge={p.badge} />
+                  <ProductCard
+                    id={p.id}
+                    image={p.image_url || ""}
+                    hoverImage={p.hover_image_url || p.image_url || ""}
+                    brand={p.brand}
+                    name={p.name}
+                    price={p.price}
+                    oldPrice={p.old_price ?? undefined}
+                    badge={p.badge_type ? { type: p.badge_type as "hot" | "sale", label: p.badge_label || "" } : undefined}
+                  />
                 </Link>
               ))}
             </div>
