@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { getCategoryBySlug, getProductsByCategory, products as allProducts } from "@/data/products";
+import { getCategoryBySlug } from "@/data/products";
 import ProductCard from "@/components/ProductCard";
 import TopBar from "@/components/TopBar";
 import Navbar from "@/components/Navbar";
@@ -11,21 +11,18 @@ import { supabase } from "@/integrations/supabase/client";
 const CategoryPage = () => {
   const { categorySlug } = useParams<{ categorySlug: string }>();
   const category = getCategoryBySlug(categorySlug || "");
-  const categoryProducts = getProductsByCategory(categorySlug || "");
 
-  // Fetch products from DB for montres category
   const { data: dbProducts = [] } = useQuery({
-    queryKey: ["db-products-montres"],
+    queryKey: ["category-products", categorySlug],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("products")
         .select("*")
-        .eq("category", "montres")
+        .eq("category", categorySlug || "")
         .eq("is_active", true);
       if (error) throw error;
       return data;
     },
-    enabled: categorySlug === "montres",
   });
 
   if (!category) {
@@ -44,16 +41,9 @@ const CategoryPage = () => {
 
   const isMontres = categorySlug === "montres";
 
-  // For montres: use DB products
-  const glycineDbProducts = dbProducts.filter(p => p.brand?.toLowerCase() === "glycine");
-  const glycineModels = [...new Set(glycineDbProducts.map(p => p.model).filter(Boolean))] as string[];
-  const glycineReferences = glycineDbProducts.map(p => ({ ref: p.reference, name: p.name, id: p.id }));
-
-  // Also merge static glycine products as fallback
-  const staticGlycineProducts = allProducts.filter(p => p.brand === "Glycine");
-
-  // Use DB products if available, otherwise fallback to static
-  const displayGlycineProducts = glycineDbProducts.length > 0 ? glycineDbProducts : [];
+  const glycineProducts = dbProducts.filter(p => p.brand?.toLowerCase() === "glycine");
+  const glycineModels = [...new Set(glycineProducts.map(p => p.model).filter(Boolean))] as string[];
+  const glycineReferences = glycineProducts.map(p => ({ ref: p.reference, name: p.name, id: p.id }));
 
   const glycineSubcategory = category.subcategories.find(s => s.slug === "glycine");
   const genderSubcategories = category.subcategories.filter(s => s.slug === "homme" || s.slug === "femme");
@@ -111,9 +101,9 @@ const CategoryPage = () => {
                 <div className="mb-8">
                   <h3 className="text-lg font-display font-semibold mb-4 tracking-wider">Produits Glycine</h3>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    {displayGlycineProducts.map((p) => (
+                    {glycineProducts.map((p) => (
                       <Link key={p.id} to={`/produit/${p.id}`}>
-                        <ProductCard id={p.id} image={p.image_url || ""} hoverImage={p.hover_image_url || ""} brand={p.brand} name={p.name} price={p.price} oldPrice={p.old_price ?? undefined} badge={p.badge_type ? { type: p.badge_type as "hot" | "sale", label: p.badge_label || "" } : undefined} />
+                        <ProductCard id={p.id} image={p.image_url || ""} hoverImage={p.hover_image_url || p.image_url || ""} brand={p.brand} name={p.name} price={p.price} oldPrice={p.old_price ?? undefined} badge={p.badge_type ? { type: p.badge_type as "hot" | "sale", label: p.badge_label || "" } : undefined} />
                       </Link>
                     ))}
                   </div>
@@ -125,7 +115,7 @@ const CategoryPage = () => {
                     <h3 className="text-lg font-display font-semibold mb-4 tracking-wider">Modèles</h3>
                     <div className="flex flex-wrap gap-3">
                       {glycineModels.map((model) => {
-                        const modelProducts = glycineDbProducts.filter(p => p.model === model);
+                        const modelProducts = glycineProducts.filter(p => p.model === model);
                         return (
                           <Link
                             key={model}
@@ -187,15 +177,15 @@ const CategoryPage = () => {
             </div>
           )}
 
-          {/* All watches */}
-          {categoryProducts.length > 0 && (
+          {/* All watches from DB */}
+          {dbProducts.length > 0 && (
             <div className="section-container pb-16">
               <div className="border-t border-border pt-8">
                 <h2 className="text-xl font-display font-bold mb-6 tracking-wider">Toutes les montres</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                  {categoryProducts.map((p) => (
+                  {dbProducts.map((p) => (
                     <Link key={p.id} to={`/produit/${p.id}`}>
-                       <ProductCard id={p.id} image={p.image} hoverImage={p.hoverImage} brand={p.brand} name={p.name} price={p.price} oldPrice={p.oldPrice} badge={p.badge} />
+                      <ProductCard id={p.id} image={p.image_url || ""} hoverImage={p.hover_image_url || p.image_url || ""} brand={p.brand} name={p.name} price={p.price} oldPrice={p.old_price ?? undefined} badge={p.badge_type ? { type: p.badge_type as "hot" | "sale", label: p.badge_label || "" } : undefined} />
                     </Link>
                   ))}
                 </div>
@@ -221,13 +211,13 @@ const CategoryPage = () => {
             </div>
           </div>
 
-          {categoryProducts.length > 0 && (
+          {dbProducts.length > 0 && (
             <div className="section-container pb-16">
               <h2 className="text-xl font-display font-bold mb-6 tracking-wider">Tous les produits</h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                {categoryProducts.map((p) => (
+                {dbProducts.map((p) => (
                   <Link key={p.id} to={`/produit/${p.id}`}>
-                    <ProductCard id={p.id} image={p.image} hoverImage={p.hoverImage} brand={p.brand} name={p.name} price={p.price} oldPrice={p.oldPrice} badge={p.badge} />
+                    <ProductCard id={p.id} image={p.image_url || ""} hoverImage={p.hover_image_url || p.image_url || ""} brand={p.brand} name={p.name} price={p.price} oldPrice={p.old_price ?? undefined} badge={p.badge_type ? { type: p.badge_type as "hot" | "sale", label: p.badge_label || "" } : undefined} />
                   </Link>
                 ))}
               </div>

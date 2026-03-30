@@ -5,7 +5,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Heart, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { products as staticProducts } from "@/data/products";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const FavoritesPage = () => {
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
@@ -21,7 +22,20 @@ const FavoritesPage = () => {
     return () => window.removeEventListener("favorites-updated", load);
   }, []);
 
-  const favoriteProducts = staticProducts.filter(p => favoriteIds.includes(p.id));
+  const { data: favoriteProducts = [] } = useQuery({
+    queryKey: ["favorite-products", favoriteIds],
+    queryFn: async () => {
+      if (favoriteIds.length === 0) return [];
+      const { data, error } = await supabase
+        .from("products")
+        .select("*")
+        .in("id", favoriteIds)
+        .eq("is_active", true);
+      if (error) throw error;
+      return data;
+    },
+    enabled: favoriteIds.length > 0,
+  });
 
   const removeFavorite = (id: string) => {
     const updated = favoriteIds.filter(fid => fid !== id);
@@ -53,14 +67,14 @@ const FavoritesPage = () => {
             {favoriteProducts.map(p => (
               <div key={p.id} className="border border-border bg-background flex gap-4 p-4">
                 <Link to={`/produit/${p.id}`} className="flex-shrink-0">
-                  <img src={p.image} alt={p.name} className="w-20 h-20 object-cover" />
+                  <img src={p.image_url || "/placeholder.svg"} alt={p.name} className="w-20 h-20 object-cover" />
                 </Link>
                 <div className="flex-1 min-w-0">
                   <p className="text-xs text-muted-foreground font-body">{p.brand}</p>
                   <Link to={`/produit/${p.id}`} className="font-body text-sm font-medium text-foreground hover:text-accent transition-colors block truncate">
                     {p.name}
                   </Link>
-                  <p className="font-body text-sm font-semibold mt-1">{p.price.toLocaleString()} MAD</p>
+                  <p className="font-body text-sm font-semibold mt-1">{Number(p.price).toLocaleString()} MAD</p>
                 </div>
                 <button onClick={() => removeFavorite(p.id)} className="text-muted-foreground hover:text-destructive transition-colors self-start" title="Retirer">
                   <Trash2 className="w-4 h-4" />
