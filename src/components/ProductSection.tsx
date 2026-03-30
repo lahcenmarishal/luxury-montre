@@ -15,14 +15,14 @@ const ProductSection = () => {
   const filtered = products.filter((p) => p.category === tabs[activeTab].category).slice(0, 8);
 
   return (
-    <section className="section-container py-16">
+    <section className="section-container py-8 sm:py-12 md:py-16">
       <ScrollReveal>
-        <div className="flex justify-center gap-8 mb-12 border-b border-border">
+        <div className="flex justify-center gap-4 sm:gap-8 mb-6 sm:mb-12 border-b border-border">
           {tabs.map((tab, i) => (
             <button
               key={tab.label}
               onClick={() => setActiveTab(i)}
-              className={`pb-3 text-xs tracking-[0.2em] font-body transition-all duration-200 ${
+              className={`pb-2 sm:pb-3 text-[10px] sm:text-xs tracking-[0.15em] sm:tracking-[0.2em] font-body transition-all duration-200 ${
                 activeTab === i ? "text-foreground border-b-2 border-foreground" : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -32,7 +32,7 @@ const ProductSection = () => {
         </div>
       </ScrollReveal>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-12">
         {filtered.map((p, i) => (
           <ScrollReveal key={p.id} delay={i * 80}>
             <Link to={`/produit/${p.id}`}>

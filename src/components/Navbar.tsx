@@ -136,7 +136,7 @@ const Navbar = () => {
       <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
       <nav className="bg-background border-b border-border sticky top-0 z-50">
         <div className="section-container flex items-center justify-between py-3 sm:py-4">
-          <Link to="/" className="text-lg sm:text-xl md:text-2xl font-display font-bold tracking-widest text-foreground">
+          <Link to="/" className="text-sm sm:text-lg md:text-2xl font-display font-bold tracking-widest text-foreground">
             LuxuryMontre
           </Link>
 

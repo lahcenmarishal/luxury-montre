@@ -25,9 +25,9 @@ const Footer = () => {
   const address = settings?.address || "Maroc";
 
   return (
-    <footer className="bg-primary text-primary-foreground pt-12 pb-6">
+    <footer className="bg-primary text-primary-foreground pt-8 sm:pt-12 pb-4 sm:pb-6">
       <div className="section-container">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mb-10">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-8 mb-6 sm:mb-10">
           {/* Navigation */}
           <div>
             <h4 className="text-xs font-body tracking-[0.2em] text-primary-foreground font-bold mb-4">NAVIGATION</h4>
