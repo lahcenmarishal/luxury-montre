@@ -101,24 +101,24 @@ const HeroCarousel = () => {
       {/* Content */}
       <div className="absolute inset-0 flex items-center z-10">
         <div className="section-container">
-          <div className="max-w-xl">
+          <div className="max-w-[280px] sm:max-w-md md:max-w-xl">
             <div style={{ opacity: textVisible ? 1 : 0, transform: textVisible ? "translateY(0)" : "translateY(30px)", transition: "opacity 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s, transform 0.7s cubic-bezier(0.16,1,0.3,1) 0.1s" }}>
-              <p className="text-primary-foreground/60 text-xs tracking-[0.4em] font-body mb-4 uppercase">
+              <p className="text-primary-foreground/60 text-[10px] sm:text-xs tracking-[0.2em] sm:tracking-[0.4em] font-body mb-2 sm:mb-4 uppercase">
                 {slides[current]?.subtitle}
               </p>
             </div>
             <div style={{ opacity: textVisible ? 1 : 0, transform: textVisible ? "translateY(0)" : "translateY(40px)", transition: "opacity 0.7s cubic-bezier(0.16,1,0.3,1) 0.25s, transform 0.7s cubic-bezier(0.16,1,0.3,1) 0.25s" }}>
-              <h2 className="text-primary-foreground text-2xl sm:text-3xl md:text-5xl lg:text-7xl font-display font-bold mb-3 sm:mb-5 tracking-wider leading-[1.1]">
+              <h2 className="text-primary-foreground text-lg sm:text-2xl md:text-4xl lg:text-7xl font-display font-bold mb-2 sm:mb-3 md:mb-5 tracking-wider leading-[1.1]">
                 {slides[current]?.title}
               </h2>
             </div>
             <div style={{ opacity: textVisible ? 1 : 0, transform: textVisible ? "translateY(0)" : "translateY(40px)", transition: "opacity 0.7s cubic-bezier(0.16,1,0.3,1) 0.4s, transform 0.7s cubic-bezier(0.16,1,0.3,1) 0.4s" }}>
-              <p className="text-primary-foreground/70 font-body text-xs sm:text-sm md:text-base max-w-md mb-6 sm:mb-10 leading-relaxed">
+              <p className="text-primary-foreground/70 font-body text-[10px] sm:text-xs md:text-sm lg:text-base max-w-[240px] sm:max-w-sm md:max-w-md mb-3 sm:mb-6 md:mb-10 leading-relaxed">
                 {slides[current]?.description}
               </p>
             </div>
             <div style={{ opacity: textVisible ? 1 : 0, transform: textVisible ? "translateY(0)" : "translateY(30px)", transition: "opacity 0.7s cubic-bezier(0.16,1,0.3,1) 0.55s, transform 0.7s cubic-bezier(0.16,1,0.3,1) 0.55s" }}>
-              <a href={slides[current]?.link} className="btn-shop-outline">DÉCOUVRIR</a>
+              <a href={slides[current]?.link} className="inline-block border border-primary-foreground text-primary-foreground px-4 sm:px-6 md:px-8 py-2 sm:py-3 text-[10px] sm:text-xs md:text-sm font-body tracking-widest uppercase transition-all duration-300 hover:bg-primary-foreground hover:text-primary">DÉCOUVRIR</a>
             </div>
           </div>
         </div>
