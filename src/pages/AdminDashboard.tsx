@@ -72,6 +72,8 @@ const AdminDashboard = () => {
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
   const [socialLinks, setSocialLinks] = useState({ whatsapp: "", instagram: "", facebook: "", phone: "", email: "", address: "" });
   const [savingSettings, setSavingSettings] = useState(false);
+  const [homepageImageFiles, setHomepageImageFiles] = useState<Record<string, File | null>>({});
+  const [savingImages, setSavingImages] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   // Brand state
   const [brandDialogOpen, setBrandDialogOpen] = useState(false);
