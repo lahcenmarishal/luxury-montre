@@ -12,6 +12,13 @@ import { useHomepageImages } from "@/hooks/useHomepageImages";
 const CategoryPage = () => {
   const { categorySlug } = useParams<{ categorySlug: string }>();
   const category = getCategoryBySlug(categorySlug || "");
+  const { catMontres, catBijoux, catAccessoires } = useHomepageImages();
+
+  const categoryImageMap: Record<string, string> = {
+    montres: catMontres,
+    bijoux: catBijoux,
+    accessoires: catAccessoires,
+  };
 
   const { data: dbProducts = [] } = useQuery({
     queryKey: ["category-products", categorySlug],
