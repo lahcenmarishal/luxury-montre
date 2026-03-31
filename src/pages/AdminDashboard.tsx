@@ -181,10 +181,11 @@ const AdminDashboard = () => {
       for (const [key, file] of Object.entries(homepageImageFiles)) {
         if (!file) continue;
         const url = await uploadImage(file);
-        const { error: updateError } = await supabase.from("site_settings").update({ value: url, updated_at: new Date().toISOString() }).eq("key", key);
-        if (updateError) {
-          await supabase.from("site_settings").insert({ key, value: url } as any);
-        }
+        const { error } = await supabase.from("site_settings").upsert(
+          { key, value: url, updated_at: new Date().toISOString() },
+          { onConflict: "key" }
+        );
+        if (error) throw error;
       }
       setHomepageImageFiles({});
       queryClient.invalidateQueries({ queryKey: ["admin-homepage-images"] });
