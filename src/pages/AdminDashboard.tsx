@@ -156,6 +156,46 @@ const AdminDashboard = () => {
     setSavingSettings(false);
   };
 
+  const homepageImageKeys = [
+    { key: "image_cat_montres", label: "Image catégorie Montres", desc: "Carte sur la page d'accueil + fond page catégorie Montres" },
+    { key: "image_cat_bijoux", label: "Image catégorie Bijoux", desc: "Carte sur la page d'accueil + fond page catégorie Bijoux" },
+    { key: "image_cat_accessoires", label: "Image catégorie Accessoires", desc: "Carte sur la page d'accueil + fond page catégorie Accessoires" },
+    { key: "image_top_categories_bg", label: "Fond section Nos Catégories", desc: "Image de fond de la section 'Nos Catégories'" },
+    { key: "image_prestige_banner", label: "Bannière Prestige", desc: "Image de la bannière 'Prestige et Élégance'" },
+  ];
+
+  const { data: homepageImages = {} } = useQuery({
+    queryKey: ["admin-homepage-images"],
+    queryFn: async () => {
+      const { data } = await supabase.from("site_settings").select("key, value").in("key", homepageImageKeys.map(k => k.key));
+      const map: Record<string, string> = {};
+      data?.forEach((r: any) => { if (r.value) map[r.key] = r.value; });
+      return map;
+    },
+    enabled: isAdmin,
+  });
+
+  const saveHomepageImages = async () => {
+    setSavingImages(true);
+    try {
+      for (const [key, file] of Object.entries(homepageImageFiles)) {
+        if (!file) continue;
+        const url = await uploadImage(file);
+        const { error: updateError } = await supabase.from("site_settings").update({ value: url, updated_at: new Date().toISOString() }).eq("key", key);
+        if (updateError) {
+          await supabase.from("site_settings").insert({ key, value: url } as any);
+        }
+      }
+      setHomepageImageFiles({});
+      queryClient.invalidateQueries({ queryKey: ["admin-homepage-images"] });
+      queryClient.invalidateQueries({ queryKey: ["homepage-images"] });
+      toast({ title: "Images mises à jour" });
+    } catch (err: any) {
+      toast({ title: "Erreur", description: err.message, variant: "destructive" });
+    }
+    setSavingImages(false);
+  };
+
   const uploadImage = async (file: File): Promise<string> => {
     const ext = file.name.split(".").pop();
     const path = `${Date.now()}-${Math.random().toString(36).substring(7)}.${ext}`;
