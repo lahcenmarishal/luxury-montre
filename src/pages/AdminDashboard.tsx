@@ -899,6 +899,33 @@ const AdminDashboard = () => {
                 <Button onClick={saveSocialLinks} disabled={savingSettings} className="mt-4">{savingSettings ? "Enregistrement..." : "Enregistrer"}</Button>
               </div>
             </div>
+
+            {/* Homepage Images */}
+            <div className="bg-background border border-border p-4 sm:p-6 max-w-lg mt-6">
+              <h3 className="text-lg font-display font-semibold mb-4">Images de la page d'accueil</h3>
+              <p className="text-sm text-muted-foreground font-body mb-6">Modifiez les images des cartes catégories, de la section "Nos Catégories" et de la bannière Prestige. Les images des catégories servent aussi de fond sur les pages catégories.</p>
+              <div className="space-y-5">
+                {homepageImageKeys.map(({ key, label, desc }) => (
+                  <div key={key} className="space-y-2">
+                    <Label className="font-body">{label}</Label>
+                    <p className="text-xs text-muted-foreground">{desc}</p>
+                    {(homepageImages[key] || homepageImageFiles[key]) && (
+                      <div className="w-full h-24 bg-muted overflow-hidden border border-border">
+                        <img
+                          src={homepageImageFiles[key] ? URL.createObjectURL(homepageImageFiles[key]!) : homepageImages[key]}
+                          alt={label}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    <Input type="file" accept="image/*" onChange={e => setHomepageImageFiles(prev => ({ ...prev, [key]: e.target.files?.[0] || null }))} />
+                  </div>
+                ))}
+                <Button onClick={saveHomepageImages} disabled={savingImages || Object.values(homepageImageFiles).every(f => !f)} className="mt-4">
+                  {savingImages ? "Enregistrement..." : "Enregistrer les images"}
+                </Button>
+              </div>
+            </div>
           </div>
         )}
       </div>
