@@ -751,6 +751,46 @@ const AdminDashboard = () => {
         {tab === "orders" && (
           <div>
             <h2 className="text-xl sm:text-2xl font-display font-bold text-foreground mb-6">Commandes</h2>
+            
+            {/* Order Statistics */}
+            {(() => {
+              const totalOrders = orders.length;
+              const totalRevenue = orders.reduce((s: number, o: any) => s + Number(o.total), 0);
+              const pending = orders.filter((o: any) => o.status === "pending").length;
+              const confirmed = orders.filter((o: any) => o.status === "confirmed").length;
+              const shipped = orders.filter((o: any) => o.status === "shipped").length;
+              const delivered = orders.filter((o: any) => o.status === "delivered").length;
+              const cancelled = orders.filter((o: any) => o.status === "cancelled").length;
+              return (
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
+                  <div className="bg-background border border-border p-3 sm:p-4 text-center">
+                    <p className="text-xs text-muted-foreground font-body">Total</p>
+                    <p className="text-lg sm:text-2xl font-display font-bold text-foreground">{totalOrders}</p>
+                  </div>
+                  <div className="bg-background border border-border p-3 sm:p-4 text-center">
+                    <p className="text-xs text-muted-foreground font-body">Chiffre d'affaires</p>
+                    <p className="text-sm sm:text-lg font-display font-bold text-foreground">{totalRevenue.toLocaleString()} MAD</p>
+                  </div>
+                  <div className="bg-background border border-amber-300 p-3 sm:p-4 text-center">
+                    <p className="text-xs text-muted-foreground font-body">En attente</p>
+                    <p className="text-lg sm:text-2xl font-display font-bold text-amber-600">{pending}</p>
+                  </div>
+                  <div className="bg-background border border-blue-300 p-3 sm:p-4 text-center">
+                    <p className="text-xs text-muted-foreground font-body">Confirmées</p>
+                    <p className="text-lg sm:text-2xl font-display font-bold text-blue-600">{confirmed}</p>
+                  </div>
+                  <div className="bg-background border border-green-300 p-3 sm:p-4 text-center">
+                    <p className="text-xs text-muted-foreground font-body">Livrées</p>
+                    <p className="text-lg sm:text-2xl font-display font-bold text-green-600">{delivered}</p>
+                  </div>
+                  <div className="bg-background border border-red-300 p-3 sm:p-4 text-center">
+                    <p className="text-xs text-muted-foreground font-body">Annulées</p>
+                    <p className="text-lg sm:text-2xl font-display font-bold text-red-600">{cancelled}</p>
+                  </div>
+                </div>
+              );
+            })()}
+
             <div className="bg-background border border-border">
               {orders.length === 0 ? (
                 <p className="p-8 text-center text-muted-foreground font-body">Aucune commande pour le moment.</p>
