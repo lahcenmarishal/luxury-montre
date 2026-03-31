@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import { ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useHomepageImages } from "@/hooks/useHomepageImages";
 
 const CategoryPage = () => {
   const { categorySlug } = useParams<{ categorySlug: string }>();
