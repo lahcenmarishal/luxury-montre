@@ -72,6 +72,8 @@ const AdminDashboard = () => {
   const [galleryFiles, setGalleryFiles] = useState<File[]>([]);
   const [socialLinks, setSocialLinks] = useState({ whatsapp: "", instagram: "", facebook: "", phone: "", email: "", address: "" });
   const [savingSettings, setSavingSettings] = useState(false);
+  const [homepageImageFiles, setHomepageImageFiles] = useState<Record<string, File | null>>({});
+  const [savingImages, setSavingImages] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   // Brand state
   const [brandDialogOpen, setBrandDialogOpen] = useState(false);
@@ -152,6 +154,46 @@ const AdminDashboard = () => {
       toast({ title: "Erreur", description: err.message, variant: "destructive" });
     }
     setSavingSettings(false);
+  };
+
+  const homepageImageKeys = [
+    { key: "image_cat_montres", label: "Image catégorie Montres", desc: "Carte sur la page d'accueil + fond page catégorie Montres" },
+    { key: "image_cat_bijoux", label: "Image catégorie Bijoux", desc: "Carte sur la page d'accueil + fond page catégorie Bijoux" },
+    { key: "image_cat_accessoires", label: "Image catégorie Accessoires", desc: "Carte sur la page d'accueil + fond page catégorie Accessoires" },
+    { key: "image_top_categories_bg", label: "Fond section Nos Catégories", desc: "Image de fond de la section 'Nos Catégories'" },
+    { key: "image_prestige_banner", label: "Bannière Prestige", desc: "Image de la bannière 'Prestige et Élégance'" },
+  ];
+
+  const { data: homepageImages = {} } = useQuery({
+    queryKey: ["admin-homepage-images"],
+    queryFn: async () => {
+      const { data } = await supabase.from("site_settings").select("key, value").in("key", homepageImageKeys.map(k => k.key));
+      const map: Record<string, string> = {};
+      data?.forEach((r: any) => { if (r.value) map[r.key] = r.value; });
+      return map;
+    },
+    enabled: isAdmin,
+  });
+
+  const saveHomepageImages = async () => {
+    setSavingImages(true);
+    try {
+      for (const [key, file] of Object.entries(homepageImageFiles)) {
+        if (!file) continue;
+        const url = await uploadImage(file);
+        const { error: updateError } = await supabase.from("site_settings").update({ value: url, updated_at: new Date().toISOString() }).eq("key", key);
+        if (updateError) {
+          await supabase.from("site_settings").insert({ key, value: url } as any);
+        }
+      }
+      setHomepageImageFiles({});
+      queryClient.invalidateQueries({ queryKey: ["admin-homepage-images"] });
+      queryClient.invalidateQueries({ queryKey: ["homepage-images"] });
+      toast({ title: "Images mises à jour" });
+    } catch (err: any) {
+      toast({ title: "Erreur", description: err.message, variant: "destructive" });
+    }
+    setSavingImages(false);
   };
 
   const uploadImage = async (file: File): Promise<string> => {
@@ -855,6 +897,33 @@ const AdminDashboard = () => {
                 <div className="space-y-2"><Label className="font-body">Instagram (lien du profil)</Label><Input placeholder="Ex: https://instagram.com/votre_compte" value={socialLinks.instagram} onChange={e => setSocialLinks(prev => ({ ...prev, instagram: e.target.value }))} /></div>
                 <div className="space-y-2"><Label className="font-body">Facebook (lien de la page)</Label><Input placeholder="Ex: https://facebook.com/votre_page" value={socialLinks.facebook} onChange={e => setSocialLinks(prev => ({ ...prev, facebook: e.target.value }))} /></div>
                 <Button onClick={saveSocialLinks} disabled={savingSettings} className="mt-4">{savingSettings ? "Enregistrement..." : "Enregistrer"}</Button>
+              </div>
+            </div>
+
+            {/* Homepage Images */}
+            <div className="bg-background border border-border p-4 sm:p-6 max-w-lg mt-6">
+              <h3 className="text-lg font-display font-semibold mb-4">Images de la page d'accueil</h3>
+              <p className="text-sm text-muted-foreground font-body mb-6">Modifiez les images des cartes catégories, de la section "Nos Catégories" et de la bannière Prestige. Les images des catégories servent aussi de fond sur les pages catégories.</p>
+              <div className="space-y-5">
+                {homepageImageKeys.map(({ key, label, desc }) => (
+                  <div key={key} className="space-y-2">
+                    <Label className="font-body">{label}</Label>
+                    <p className="text-xs text-muted-foreground">{desc}</p>
+                    {(homepageImages[key] || homepageImageFiles[key]) && (
+                      <div className="w-full h-24 bg-muted overflow-hidden border border-border">
+                        <img
+                          src={homepageImageFiles[key] ? URL.createObjectURL(homepageImageFiles[key]!) : homepageImages[key]}
+                          alt={label}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    <Input type="file" accept="image/*" onChange={e => setHomepageImageFiles(prev => ({ ...prev, [key]: e.target.files?.[0] || null }))} />
+                  </div>
+                ))}
+                <Button onClick={saveHomepageImages} disabled={savingImages || Object.values(homepageImageFiles).every(f => !f)} className="mt-4">
+                  {savingImages ? "Enregistrement..." : "Enregistrer les images"}
+                </Button>
               </div>
             </div>
           </div>
