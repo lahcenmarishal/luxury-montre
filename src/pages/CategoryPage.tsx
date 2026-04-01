@@ -171,7 +171,7 @@ const CategoryPage = () => {
                     const brandProducts = dbProducts.filter(p => p.brand?.toLowerCase() === sub.slug);
                     return (
                       <Link key={sub.slug} to={`/categorie/montres/${sub.slug}`} className="group relative h-[200px] overflow-hidden bg-secondary">
-                        <img src={sub.image} alt={sub.name} className="w-full h-full object-contain p-4 transition-transform duration-500 group-hover:scale-110" />
+                        <img src={sub.image} alt={sub.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                         <div className="absolute inset-0 bg-foreground/20 group-hover:bg-foreground/40 transition-colors duration-300" />
                         <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-foreground/80 to-transparent">
                           <h3 className="text-primary-foreground text-sm font-body tracking-wider">{sub.name}</h3>
