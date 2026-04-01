@@ -61,8 +61,8 @@ const ProductCard = ({ id, image, hoverImage, brand, name, price, oldPrice, badg
             {badge.label}
           </span>
         )}
-        <img src={image} alt={name} className="w-full aspect-square object-contain p-2 sm:p-4 transition-opacity duration-500 group-hover:opacity-0" />
-        <img src={hoverImage} alt={`${name} alternate`} className="absolute inset-0 w-full h-full object-contain p-2 sm:p-4 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+        <img src={image} alt={name} className="w-full aspect-square object-cover transition-opacity duration-500 group-hover:opacity-0" />
+        <img src={hoverImage} alt={`${name} alternate`} className="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
         <div className="absolute right-1.5 sm:right-3 top-1/2 -translate-y-1/2 flex flex-col gap-1 sm:gap-2 opacity-0 translate-x-4 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-0">
           <button onClick={handleAddToFavorites} className="w-7 h-7 sm:w-9 sm:h-9 bg-background flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors shadow-sm">
             <Heart className="w-3 h-3 sm:w-4 sm:h-4" />
