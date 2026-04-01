@@ -125,7 +125,7 @@ const ProductPage = () => {
           <div>
             <div className="bg-secondary mb-4 aspect-square flex items-center justify-center overflow-hidden">
               {gallery.length > 0 ? (
-                <img src={gallery[selectedImage]} alt={product.name} className="max-w-full max-h-full object-contain p-8 transition-opacity duration-300" />
+                <img src={gallery[selectedImage]} alt={product.name} className="max-w-full max-h-full object-cover w-full h-full transition-opacity duration-300" />
               ) : (
                 <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground">Pas d'image</div>
               )}
