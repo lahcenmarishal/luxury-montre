@@ -123,6 +123,16 @@ const AdminDashboard = () => {
     enabled: isAdmin,
   });
 
+  const { data: brandModels = [] } = useQuery({
+    queryKey: ["admin-brand-models"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("brand_models").select("*").order("name");
+      if (error) throw error;
+      return data;
+    },
+    enabled: isAdmin,
+  });
+
   const { data: heroSlides = [] } = useQuery({
     queryKey: ["admin-hero-slides"],
     queryFn: async () => {
