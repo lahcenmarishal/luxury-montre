@@ -376,6 +376,8 @@ const AdminDashboard = () => {
       queryClient.invalidateQueries({ queryKey: ["admin-brand-models"] });
       queryClient.invalidateQueries({ queryKey: ["nav-brand-models"] });
       toast({ title: "Modèle supprimé" });
+    },
+  });
 
   // Carousel mutations
   const saveSlideMutation = useMutation({
