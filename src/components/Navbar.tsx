@@ -68,6 +68,20 @@ const Navbar = () => {
     },
   });
 
+  // Fetch brand models for dynamic menu
+  const { data: brandModels = [] } = useQuery({
+    queryKey: ["nav-brand-models"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("brand_models")
+        .select("*")
+        .eq("is_active", true)
+        .order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
   // Build dynamic MONTRES menu from brands
   const montresBrands = brands.filter(b => b.category === "montres");
 
