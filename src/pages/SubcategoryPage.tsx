@@ -9,23 +9,37 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 const SubcategoryPage = () => {
-  const { categorySlug, subcategorySlug } = useParams<{ categorySlug: string; subcategorySlug: string }>();
+  const { categorySlug, subcategorySlug, modelSlug } = useParams<{ categorySlug: string; subcategorySlug: string; modelSlug?: string }>();
   const category = getCategoryBySlug(categorySlug || "");
   const subcategory = category?.subcategories.find((s) => s.slug === subcategorySlug);
 
+  // Fetch brands to check if subcategorySlug is a brand
+  const { data: brands = [] } = useQuery({
+    queryKey: ["nav-brands"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("brands").select("*").eq("is_active", true).order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const isBrandSlug = categorySlug === "montres" && brands.some((b: any) => b.slug === subcategorySlug);
+  const isGenderSlug = categorySlug === "montres" && ["homme", "femme", "unisexe"].includes(subcategorySlug || "");
+
   const { data: dbProducts = [], isLoading } = useQuery({
-    queryKey: ["subcategory-products", categorySlug, subcategorySlug],
+    queryKey: ["subcategory-products", categorySlug, subcategorySlug, modelSlug],
     queryFn: async () => {
       let query = supabase
         .from("products")
         .select("*")
         .eq("is_active", true);
 
-      // Brand-based subcategories for montres
-      const brandSubcategories = ["glycine", "seiko", "fossil", "casio"];
-      if (categorySlug === "montres" && brandSubcategories.includes(subcategorySlug || "")) {
+      if (isBrandSlug) {
         query = query.eq("category", "montres").ilike("brand", subcategorySlug || "");
-      } else if (categorySlug === "montres" && ["homme", "femme", "unisexe"].includes(subcategorySlug || "")) {
+        if (modelSlug) {
+          query = query.ilike("model", modelSlug.replace(/-/g, " "));
+        }
+      } else if (isGenderSlug) {
         query = query.eq("category", "montres").eq("gender", subcategorySlug || "");
       } else {
         query = query.eq("category", categorySlug || "").eq("subcategory", subcategorySlug || "");
@@ -35,6 +49,7 @@ const SubcategoryPage = () => {
       if (error) throw error;
       return data;
     },
+    enabled: categorySlug === "montres" ? brands.length > 0 : true,
   });
 
   if (!category || !subcategory) {
