@@ -81,6 +81,7 @@ export const categories: Category[] = [
     subcategories: [
       { slug: "homme", name: "Homme", image: watch2 },
       { slug: "femme", name: "Femme", image: watch4 },
+      { slug: "unisexe", name: "Unisexe", image: watch6 },
       { slug: "glycine", name: "Glycine", image: watch1 },
       { slug: "seiko", name: "Seiko", image: watch8 },
       { slug: "fossil", name: "Fossil", image: watch2 },
