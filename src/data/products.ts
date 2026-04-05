@@ -110,6 +110,7 @@ export const categories: Category[] = [
       { slug: "porte-documents", name: "Porte-documents", image: briefcase1 },
       { slug: "portefeuille", name: "Portefeuille", image: wallet1 },
       { slug: "sac-a-dos", name: "Sac à dos", image: backpack1 },
+      { slug: "ceintures", name: "Ceintures", image: briefcase1 },
     ],
   },
   {

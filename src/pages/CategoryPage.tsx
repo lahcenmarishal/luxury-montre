@@ -54,7 +54,7 @@ const CategoryPage = () => {
   const glycineReferences = glycineProducts.map(p => ({ ref: p.reference, name: p.name, id: p.id }));
 
   const glycineSubcategory = category.subcategories.find(s => s.slug === "glycine");
-  const genderSubcategories = category.subcategories.filter(s => s.slug === "homme" || s.slug === "femme");
+  const genderSubcategories = category.subcategories.filter(s => ["homme", "femme", "unisexe"].includes(s.slug));
   const autresMarquesSubcategories = category.subcategories.filter(s => ["seiko", "fossil", "casio"].includes(s.slug));
 
   return (

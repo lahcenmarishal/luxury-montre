@@ -32,7 +32,7 @@ const staticNavItems: NavItem[] = [
     submenu: [
       { title: "Lunettes", items: [{ label: "Lunettes de vue", href: "/categorie/accessoires/lunettes-de-vue" }, { label: "Lunettes de soleil", href: "/categorie/accessoires/lunettes-de-soleil" }] },
       { title: "Parfum & Écriture", items: [{ label: "Parfum", href: "/categorie/accessoires/parfum" }, { label: "Stylos", href: "/categorie/accessoires/stylos" }] },
-      { title: "Maroquinerie", items: [{ label: "Porte-documents", href: "/categorie/accessoires/porte-documents" }, { label: "Portefeuille", href: "/categorie/accessoires/portefeuille" }, { label: "Sac à dos", href: "/categorie/accessoires/sac-a-dos" }] },
+      { title: "Maroquinerie", items: [{ label: "Porte-documents", href: "/categorie/accessoires/porte-documents" }, { label: "Portefeuille", href: "/categorie/accessoires/portefeuille" }, { label: "Sac à dos", href: "/categorie/accessoires/sac-a-dos" }, { label: "Ceintures", href: "/categorie/accessoires/ceintures" }] },
     ],
   },
   {
