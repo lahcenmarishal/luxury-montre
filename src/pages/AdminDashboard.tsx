@@ -344,6 +344,39 @@ const AdminDashboard = () => {
     },
   });
 
+  // Model mutations
+  const saveModelMutation = useMutation({
+    mutationFn: async () => {
+      const payload = { name: modelForm.name, slug: modelForm.slug, brand_id: modelForm.brand_id, is_active: modelForm.is_active };
+      if (editingModelId) {
+        const { error } = await supabase.from("brand_models").update(payload).eq("id", editingModelId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("brand_models").insert(payload);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-brand-models"] });
+      queryClient.invalidateQueries({ queryKey: ["nav-brand-models"] });
+      setModelDialogOpen(false);
+      setModelForm({ name: "", slug: "", brand_id: "", is_active: true });
+      setEditingModelId(null);
+      toast({ title: editingModelId ? "Modèle modifié" : "Modèle ajouté" });
+    },
+    onError: (err: Error) => toast({ title: "Erreur", description: err.message, variant: "destructive" }),
+  });
+
+  const deleteModelMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("brand_models").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-brand-models"] });
+      queryClient.invalidateQueries({ queryKey: ["nav-brand-models"] });
+      toast({ title: "Modèle supprimé" });
+
   // Carousel mutations
   const saveSlideMutation = useMutation({
     mutationFn: async () => {
