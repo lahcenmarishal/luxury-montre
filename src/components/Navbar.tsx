@@ -89,15 +89,17 @@ const Navbar = () => {
     { title: "Par Genre", items: [{ label: "Homme", href: "/categorie/montres/homme" }, { label: "Femme", href: "/categorie/montres/femme" }, { label: "Unisexe", href: "/categorie/montres/unisexe" }] },
   ];
 
+  // Add each brand with its models as submenu sections
   if (montresBrands.length > 0) {
-    montresSubmenu.push({
-      title: "Nos Marques",
-      items: montresBrands.map(b => ({ label: b.name, href: `/categorie/montres/${b.slug}` })),
+    montresBrands.forEach(b => {
+      const models = brandModels.filter((m: any) => m.brand_id === b.id);
+      const items = [{ label: `Tous ${b.name}`, href: `/categorie/montres/${b.slug}` }];
+      models.forEach((m: any) => {
+        items.push({ label: m.name, href: `/categorie/montres/${b.slug}/${m.slug}` });
+      });
+      montresSubmenu.push({ title: b.name, items });
     });
   }
-
-  const navItems: NavItem[] = [
-    staticNavItems[0], // ACCUEIL
     { label: "MONTRES", href: "/categorie/montres", submenu: montresSubmenu },
     ...staticNavItems.slice(1), // BIJOUX, ACCESSOIRES, SERVICES
   ];
