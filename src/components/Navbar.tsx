@@ -32,7 +32,7 @@ const staticNavItems: NavItem[] = [
     submenu: [
       { title: "Lunettes", items: [{ label: "Lunettes de vue", href: "/categorie/accessoires/lunettes-de-vue" }, { label: "Lunettes de soleil", href: "/categorie/accessoires/lunettes-de-soleil" }] },
       { title: "Parfum & Écriture", items: [{ label: "Parfum", href: "/categorie/accessoires/parfum" }, { label: "Stylos", href: "/categorie/accessoires/stylos" }] },
-      { title: "Maroquinerie", items: [{ label: "Porte-documents", href: "/categorie/accessoires/porte-documents" }, { label: "Portefeuille", href: "/categorie/accessoires/portefeuille" }, { label: "Sac à dos", href: "/categorie/accessoires/sac-a-dos" }] },
+      { title: "Maroquinerie", items: [{ label: "Porte-documents", href: "/categorie/accessoires/porte-documents" }, { label: "Portefeuille", href: "/categorie/accessoires/portefeuille" }, { label: "Sac à dos", href: "/categorie/accessoires/sac-a-dos" }, { label: "Ceintures", href: "/categorie/accessoires/ceintures" }] },
     ],
   },
   {
@@ -70,27 +70,15 @@ const Navbar = () => {
 
   // Build dynamic MONTRES menu from brands
   const montresBrands = brands.filter(b => b.category === "montres");
-  const glycineBrand = montresBrands.find(b => b.slug === "glycine");
-  const autresMarques = montresBrands.filter(b => b.slug !== "glycine");
 
   const montresSubmenu: SubMenu[] = [
-    { title: "Par Genre", items: [{ label: "Homme", href: "/categorie/montres/homme" }, { label: "Femme", href: "/categorie/montres/femme" }] },
+    { title: "Par Genre", items: [{ label: "Homme", href: "/categorie/montres/homme" }, { label: "Femme", href: "/categorie/montres/femme" }, { label: "Unisexe", href: "/categorie/montres/unisexe" }] },
   ];
 
-  if (glycineBrand) {
+  if (montresBrands.length > 0) {
     montresSubmenu.push({
-      title: "Glycine",
-      items: [
-        { label: "Modèles", href: "/categorie/montres/glycine" },
-        { label: "Références", href: "/references/glycine" },
-      ],
-    });
-  }
-
-  if (autresMarques.length > 0) {
-    montresSubmenu.push({
-      title: "Autres Marques",
-      items: autresMarques.map(b => ({ label: b.name, href: `/categorie/montres/${b.slug}` })),
+      title: "Nos Marques",
+      items: montresBrands.map(b => ({ label: b.name, href: `/categorie/montres/${b.slug}` })),
     });
   }
 

@@ -58,6 +58,7 @@ const subcategoryOptions: Record<string, { value: string; label: string }[]> = {
     { value: "porte-documents", label: "Porte-documents" },
     { value: "portefeuille", label: "Portefeuille" },
     { value: "sac-a-dos", label: "Sac à dos" },
+    { value: "ceintures", label: "Ceintures" },
   ],
 };
 

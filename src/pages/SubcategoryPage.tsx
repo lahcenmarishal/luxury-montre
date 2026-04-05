@@ -25,7 +25,7 @@ const SubcategoryPage = () => {
       const brandSubcategories = ["glycine", "seiko", "fossil", "casio"];
       if (categorySlug === "montres" && brandSubcategories.includes(subcategorySlug || "")) {
         query = query.eq("category", "montres").ilike("brand", subcategorySlug || "");
-      } else if (categorySlug === "montres" && (subcategorySlug === "homme" || subcategorySlug === "femme")) {
+      } else if (categorySlug === "montres" && ["homme", "femme", "unisexe"].includes(subcategorySlug || "")) {
         query = query.eq("category", "montres").eq("gender", subcategorySlug || "");
       } else {
         query = query.eq("category", categorySlug || "").eq("subcategory", subcategorySlug || "");
