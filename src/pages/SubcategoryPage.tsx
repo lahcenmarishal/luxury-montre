@@ -111,7 +111,7 @@ const SubcategoryPage = () => {
         ) : (
           <div className="text-center py-20">
             <p className="text-muted-foreground font-body">Aucun produit dans cette sous-catégorie pour le moment.</p>
-            <Link to={`/categorie/${category.slug}`} className="btn-shop inline-block mt-6">Voir toute la catégorie</Link>
+            <Link to={`/categorie/${categorySlug}`} className="btn-shop inline-block mt-6">Voir toute la catégorie</Link>
           </div>
         )}
       </div>
