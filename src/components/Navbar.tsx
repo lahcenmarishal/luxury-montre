@@ -68,6 +68,20 @@ const Navbar = () => {
     },
   });
 
+  // Fetch brand models for dynamic menu
+  const { data: brandModels = [] } = useQuery({
+    queryKey: ["nav-brand-models"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("brand_models")
+        .select("*")
+        .eq("is_active", true)
+        .order("name");
+      if (error) throw error;
+      return data;
+    },
+  });
+
   // Build dynamic MONTRES menu from brands
   const montresBrands = brands.filter(b => b.category === "montres");
 
@@ -75,10 +89,15 @@ const Navbar = () => {
     { title: "Par Genre", items: [{ label: "Homme", href: "/categorie/montres/homme" }, { label: "Femme", href: "/categorie/montres/femme" }, { label: "Unisexe", href: "/categorie/montres/unisexe" }] },
   ];
 
+  // Add each brand with its models as submenu sections
   if (montresBrands.length > 0) {
-    montresSubmenu.push({
-      title: "Nos Marques",
-      items: montresBrands.map(b => ({ label: b.name, href: `/categorie/montres/${b.slug}` })),
+    montresBrands.forEach(b => {
+      const models = brandModels.filter((m: any) => m.brand_id === b.id);
+      const items = [{ label: `Tous ${b.name}`, href: `/categorie/montres/${b.slug}` }];
+      models.forEach((m: any) => {
+        items.push({ label: m.name, href: `/categorie/montres/${b.slug}/${m.slug}` });
+      });
+      montresSubmenu.push({ title: b.name, items });
     });
   }
 

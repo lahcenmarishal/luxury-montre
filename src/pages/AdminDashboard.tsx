@@ -1,6 +1,6 @@
 import { useAdmin } from "@/hooks/useAdmin";
 import { useState, useEffect } from "react";
-import { Package, ShoppingCart, BarChart3, LogOut, Plus, Pencil, Trash2, Eye, ArrowLeft, X, ImagePlus, Settings, Menu, Tag, Image, ArrowUp, ArrowDown } from "lucide-react";
+import { Package, ShoppingCart, BarChart3, LogOut, Plus, Pencil, Trash2, Eye, ArrowLeft, X, ImagePlus, Settings, Menu, Tag, Image, ArrowUp, ArrowDown, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -80,6 +80,11 @@ const AdminDashboard = () => {
   const [brandDialogOpen, setBrandDialogOpen] = useState(false);
   const [brandForm, setBrandForm] = useState<BrandForm>(emptyBrandForm);
   const [editingBrandId, setEditingBrandId] = useState<string | null>(null);
+  // Model state
+  const [modelDialogOpen, setModelDialogOpen] = useState(false);
+  const [modelForm, setModelForm] = useState({ name: "", slug: "", brand_id: "", is_active: true });
+  const [editingModelId, setEditingModelId] = useState<string | null>(null);
+  const [expandedBrandId, setExpandedBrandId] = useState<string | null>(null);
   // Carousel state
   const [slideDialogOpen, setSlideDialogOpen] = useState(false);
   const [slideForm, setSlideForm] = useState({ title: "", subtitle: "", description: "", link: "/", sort_order: 0, is_active: true });
@@ -112,6 +117,16 @@ const AdminDashboard = () => {
     queryKey: ["admin-brands"],
     queryFn: async () => {
       const { data, error } = await supabase.from("brands").select("*").order("name");
+      if (error) throw error;
+      return data;
+    },
+    enabled: isAdmin,
+  });
+
+  const { data: brandModels = [] } = useQuery({
+    queryKey: ["admin-brand-models"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("brand_models").select("*").order("name");
       if (error) throw error;
       return data;
     },
@@ -329,6 +344,41 @@ const AdminDashboard = () => {
     },
   });
 
+  // Model mutations
+  const saveModelMutation = useMutation({
+    mutationFn: async () => {
+      const payload = { name: modelForm.name, slug: modelForm.slug, brand_id: modelForm.brand_id, is_active: modelForm.is_active };
+      if (editingModelId) {
+        const { error } = await supabase.from("brand_models").update(payload).eq("id", editingModelId);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.from("brand_models").insert(payload);
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-brand-models"] });
+      queryClient.invalidateQueries({ queryKey: ["nav-brand-models"] });
+      setModelDialogOpen(false);
+      setModelForm({ name: "", slug: "", brand_id: "", is_active: true });
+      setEditingModelId(null);
+      toast({ title: editingModelId ? "Modèle modifié" : "Modèle ajouté" });
+    },
+    onError: (err: Error) => toast({ title: "Erreur", description: err.message, variant: "destructive" }),
+  });
+
+  const deleteModelMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("brand_models").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-brand-models"] });
+      queryClient.invalidateQueries({ queryKey: ["nav-brand-models"] });
+      toast({ title: "Modèle supprimé" });
+    },
+  });
+
   // Carousel mutations
   const saveSlideMutation = useMutation({
     mutationFn: async () => {
@@ -423,7 +473,14 @@ const AdminDashboard = () => {
     cancelled: "bg-red-100 text-red-800",
   };
 
-  const currentSubcategories = subcategoryOptions[form.category] || [];
+  const currentSubcategories = form.category === "montres"
+    ? [
+        { value: "homme", label: "Homme" },
+        { value: "femme", label: "Femme" },
+        { value: "unisexe", label: "Unisexe" },
+        ...brands.filter((b: any) => b.category === "montres").map((b: any) => ({ value: b.slug, label: b.name })),
+      ]
+    : (subcategoryOptions[form.category] || []);
 
   const handleTabClick = (id: Tab) => { setTab(id); setSidebarOpen(false); };
 
@@ -573,7 +630,26 @@ const AdminDashboard = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="space-y-2"><Label>Modèle</Label><Input value={form.model} onChange={e => setForm({ ...form, model: e.target.value })} /></div>
+                    <div className="space-y-2">
+                      <Label>Modèle</Label>
+                      {(() => {
+                        const selectedBrand = brands.find((b: any) => b.name === form.brand);
+                        const modelsForBrand = selectedBrand ? brandModels.filter((m: any) => m.brand_id === selectedBrand.id) : [];
+                        if (modelsForBrand.length > 0) {
+                          return (
+                            <Select value={form.model} onValueChange={v => setForm({ ...form, model: v })}>
+                              <SelectTrigger><SelectValue placeholder="Sélectionner un modèle" /></SelectTrigger>
+                              <SelectContent>
+                                {modelsForBrand.map((m: any) => (
+                                  <SelectItem key={m.id} value={m.name}>{m.name}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          );
+                        }
+                        return <Input value={form.model} onChange={e => setForm({ ...form, model: e.target.value })} placeholder="Saisir le modèle" />;
+                      })()}
+                    </div>
                     <div className="space-y-2"><Label>Stock</Label><Input type="number" value={form.stock} onChange={e => setForm({ ...form, stock: e.target.value })} /></div>
                     <div className="space-y-2">
                       <Label>Badge type</Label>
@@ -713,6 +789,35 @@ const AdminDashboard = () => {
               </Dialog>
             </div>
             <p className="text-sm text-muted-foreground font-body mb-4">Les marques actives avec "Afficher dans le menu" apparaîtront dans la navigation du site.</p>
+            {/* Model Dialog */}
+            <Dialog open={modelDialogOpen} onOpenChange={(open) => { setModelDialogOpen(open); if (!open) { setEditingModelId(null); setModelForm({ name: "", slug: "", brand_id: "", is_active: true }); } }}>
+              <DialogContent className="max-w-md mx-2">
+                <DialogHeader><DialogTitle>{editingModelId ? "Modifier le modèle" : "Nouveau modèle"}</DialogTitle></DialogHeader>
+                <form onSubmit={(e) => { e.preventDefault(); saveModelMutation.mutate(); }} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Nom *</Label>
+                    <Input value={modelForm.name} onChange={e => {
+                      const name = e.target.value;
+                      const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+                      setModelForm({ ...modelForm, name, slug });
+                    }} required />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Slug *</Label>
+                    <Input value={modelForm.slug} onChange={e => setModelForm({ ...modelForm, slug: e.target.value })} required />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label>Actif</Label>
+                    <Switch checked={modelForm.is_active} onCheckedChange={v => setModelForm({ ...modelForm, is_active: v })} />
+                  </div>
+                  <div className="flex justify-end gap-3 pt-4">
+                    <Button type="button" variant="outline" onClick={() => setModelDialogOpen(false)}>Annuler</Button>
+                    <Button type="submit" disabled={saveModelMutation.isPending}>{saveModelMutation.isPending ? "Enregistrement..." : editingModelId ? "Modifier" : "Ajouter"}</Button>
+                  </div>
+                </form>
+              </DialogContent>
+            </Dialog>
+
             <div className="bg-background border border-border">
               {brands.length === 0 ? (
                 <p className="p-8 text-center text-muted-foreground font-body">Aucune marque. Commencez par en ajouter une.</p>
@@ -725,21 +830,62 @@ const AdminDashboard = () => {
                       <TableHead>Menu</TableHead><TableHead>Statut</TableHead><TableHead>Actions</TableHead>
                     </TableRow></TableHeader>
                     <TableBody>
-                      {brands.map((b: any) => (
-                        <TableRow key={b.id}>
-                          <TableCell className="font-body font-medium">{b.name}</TableCell>
-                          <TableCell className="font-mono text-xs text-muted-foreground">{b.slug}</TableCell>
-                          <TableCell className="font-body hidden sm:table-cell capitalize">{b.category}</TableCell>
-                          <TableCell>{b.display_in_menu ? <Badge>Oui</Badge> : <Badge variant="secondary">Non</Badge>}</TableCell>
-                          <TableCell><Badge variant={b.is_active ? "default" : "secondary"}>{b.is_active ? "Active" : "Inactive"}</Badge></TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-1">
-                              <Button size="sm" variant="ghost" onClick={() => openBrandEdit(b)} title="Modifier"><Pencil className="w-4 h-4" /></Button>
-                              <Button size="sm" variant="ghost" onClick={() => { if (confirm("Supprimer cette marque ?")) deleteBrandMutation.mutate(b.id); }} title="Supprimer"><Trash2 className="w-4 h-4 text-destructive" /></Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                      {brands.map((b: any) => {
+                        const bModels = brandModels.filter((m: any) => m.brand_id === b.id);
+                        return (
+                          <>
+                            <TableRow key={b.id} className="cursor-pointer" onClick={() => setExpandedBrandId(expandedBrandId === b.id ? null : b.id)}>
+                              <TableCell className="font-body font-medium">
+                                <span className="flex items-center gap-2">
+                                  <ChevronDown className={`w-3 h-3 transition-transform ${expandedBrandId === b.id ? "rotate-180" : ""}`} />
+                                  {b.name}
+                                </span>
+                              </TableCell>
+                              <TableCell className="font-mono text-xs text-muted-foreground">{b.slug}</TableCell>
+                              <TableCell className="font-body hidden sm:table-cell capitalize">{b.category}</TableCell>
+                              <TableCell>{b.display_in_menu ? <Badge>Oui</Badge> : <Badge variant="secondary">Non</Badge>}</TableCell>
+                              <TableCell><Badge variant={b.is_active ? "default" : "secondary"}>{b.is_active ? "Active" : "Inactive"}</Badge></TableCell>
+                              <TableCell>
+                                <div className="flex items-center gap-1" onClick={e => e.stopPropagation()}>
+                                  <Button size="sm" variant="ghost" onClick={() => openBrandEdit(b)} title="Modifier"><Pencil className="w-4 h-4" /></Button>
+                                  <Button size="sm" variant="ghost" onClick={() => { if (confirm("Supprimer cette marque ?")) deleteBrandMutation.mutate(b.id); }} title="Supprimer"><Trash2 className="w-4 h-4 text-destructive" /></Button>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                            {expandedBrandId === b.id && (
+                              <TableRow key={`${b.id}-models`}>
+                                <TableCell colSpan={6} className="bg-secondary/30 p-4">
+                                  <div className="flex items-center justify-between mb-3">
+                                    <h4 className="text-sm font-display font-semibold">Modèles de {b.name}</h4>
+                                    <Button size="sm" variant="outline" onClick={() => { setModelForm({ name: "", slug: "", brand_id: b.id, is_active: true }); setEditingModelId(null); setModelDialogOpen(true); }}>
+                                      <Plus className="w-3 h-3 mr-1" /> Modèle
+                                    </Button>
+                                  </div>
+                                  {bModels.length === 0 ? (
+                                    <p className="text-xs text-muted-foreground">Aucun modèle. Ajoutez-en un.</p>
+                                  ) : (
+                                    <div className="space-y-1">
+                                      {bModels.map((m: any) => (
+                                        <div key={m.id} className="flex items-center justify-between bg-background border border-border px-3 py-2 text-sm">
+                                          <div>
+                                            <span className="font-body font-medium">{m.name}</span>
+                                            <span className="text-xs text-muted-foreground ml-2">({m.slug})</span>
+                                          </div>
+                                          <div className="flex items-center gap-1">
+                                            <Badge variant={m.is_active ? "default" : "secondary"} className="text-[10px]">{m.is_active ? "Actif" : "Inactif"}</Badge>
+                                            <Button size="sm" variant="ghost" onClick={() => { setEditingModelId(m.id); setModelForm({ name: m.name, slug: m.slug, brand_id: m.brand_id, is_active: m.is_active }); setModelDialogOpen(true); }}><Pencil className="w-3 h-3" /></Button>
+                                            <Button size="sm" variant="ghost" onClick={() => { if (confirm("Supprimer ce modèle ?")) deleteModelMutation.mutate(m.id); }}><Trash2 className="w-3 h-3 text-destructive" /></Button>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                </TableCell>
+                              </TableRow>
+                            )}
+                          </>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 </div>
