@@ -80,6 +80,11 @@ const AdminDashboard = () => {
   const [brandDialogOpen, setBrandDialogOpen] = useState(false);
   const [brandForm, setBrandForm] = useState<BrandForm>(emptyBrandForm);
   const [editingBrandId, setEditingBrandId] = useState<string | null>(null);
+  // Model state
+  const [modelDialogOpen, setModelDialogOpen] = useState(false);
+  const [modelForm, setModelForm] = useState({ name: "", slug: "", brand_id: "", is_active: true });
+  const [editingModelId, setEditingModelId] = useState<string | null>(null);
+  const [expandedBrandId, setExpandedBrandId] = useState<string | null>(null);
   // Carousel state
   const [slideDialogOpen, setSlideDialogOpen] = useState(false);
   const [slideForm, setSlideForm] = useState({ title: "", subtitle: "", description: "", link: "/", sort_order: 0, is_active: true });
