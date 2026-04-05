@@ -52,7 +52,12 @@ const SubcategoryPage = () => {
     enabled: categorySlug === "montres" ? brands.length > 0 : true,
   });
 
-  if (!category || !subcategory) {
+  const displayName = subcategory?.name
+    || (isBrandSlug ? (brands.find((b: any) => b.slug === subcategorySlug)?.name || subcategorySlug) + (modelSlug ? ` — ${modelSlug.replace(/-/g, " ")}` : "") : null)
+    || (isGenderSlug ? (subcategorySlug === "homme" ? "Homme" : subcategorySlug === "femme" ? "Femme" : "Unisexe") : null)
+    || subcategorySlug || "";
+
+  if (!category && !isBrandSlug && !isGenderSlug) {
     return (
       <div className="min-h-screen bg-background">
         <TopBar />
@@ -75,9 +80,9 @@ const SubcategoryPage = () => {
       <div className="section-container py-6 flex items-center gap-2 text-xs font-body text-muted-foreground">
         <Link to="/" className="hover:text-accent transition-colors">Accueil</Link>
         <ChevronRight className="w-3 h-3" />
-        <Link to={`/categorie/${category.slug}`} className="hover:text-accent transition-colors">{category.name}</Link>
+        <Link to={`/categorie/${categorySlug}`} className="hover:text-accent transition-colors capitalize">{category?.name || categorySlug}</Link>
         <ChevronRight className="w-3 h-3" />
-        <span className="text-foreground">{subcategory.name}</span>
+        <span className="text-foreground capitalize">{displayName}</span>
       </div>
 
       <div className="section-container pb-16">
