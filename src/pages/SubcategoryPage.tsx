@@ -86,7 +86,7 @@ const SubcategoryPage = () => {
       </div>
 
       <div className="section-container pb-16">
-        <h1 className="text-2xl md:text-3xl font-display font-bold tracking-wider mb-2">{subcategory.name}</h1>
+        <h1 className="text-2xl md:text-3xl font-display font-bold tracking-wider mb-2 capitalize">{displayName}</h1>
         <p className="text-sm text-muted-foreground font-body mb-8">{dbProducts.length} produit(s) trouvé(s)</p>
 
         {isLoading ? (
