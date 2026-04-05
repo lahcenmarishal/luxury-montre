@@ -100,6 +100,9 @@ const Navbar = () => {
       montresSubmenu.push({ title: b.name, items });
     });
   }
+
+  const navItems: NavItem[] = [
+    staticNavItems[0], // ACCUEIL
     { label: "MONTRES", href: "/categorie/montres", submenu: montresSubmenu },
     ...staticNavItems.slice(1), // BIJOUX, ACCESSOIRES, SERVICES
   ];
