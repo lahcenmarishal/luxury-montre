@@ -623,7 +623,26 @@ const AdminDashboard = () => {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="space-y-2"><Label>Modèle</Label><Input value={form.model} onChange={e => setForm({ ...form, model: e.target.value })} /></div>
+                    <div className="space-y-2">
+                      <Label>Modèle</Label>
+                      {(() => {
+                        const selectedBrand = brands.find((b: any) => b.name === form.brand);
+                        const modelsForBrand = selectedBrand ? brandModels.filter((m: any) => m.brand_id === selectedBrand.id) : [];
+                        if (modelsForBrand.length > 0) {
+                          return (
+                            <Select value={form.model} onValueChange={v => setForm({ ...form, model: v })}>
+                              <SelectTrigger><SelectValue placeholder="Sélectionner un modèle" /></SelectTrigger>
+                              <SelectContent>
+                                {modelsForBrand.map((m: any) => (
+                                  <SelectItem key={m.id} value={m.name}>{m.name}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          );
+                        }
+                        return <Input value={form.model} onChange={e => setForm({ ...form, model: e.target.value })} placeholder="Saisir le modèle" />;
+                      })()}
+                    </div>
                     <div className="space-y-2"><Label>Stock</Label><Input type="number" value={form.stock} onChange={e => setForm({ ...form, stock: e.target.value })} /></div>
                     <div className="space-y-2">
                       <Label>Badge type</Label>
