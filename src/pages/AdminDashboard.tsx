@@ -473,7 +473,14 @@ const AdminDashboard = () => {
     cancelled: "bg-red-100 text-red-800",
   };
 
-  const currentSubcategories = subcategoryOptions[form.category] || [];
+  const currentSubcategories = form.category === "montres"
+    ? [
+        { value: "homme", label: "Homme" },
+        { value: "femme", label: "Femme" },
+        { value: "unisexe", label: "Unisexe" },
+        ...brands.filter((b: any) => b.category === "montres").map((b: any) => ({ value: b.slug, label: b.name })),
+      ]
+    : (subcategoryOptions[form.category] || []);
 
   const handleTabClick = (id: Tab) => { setTab(id); setSidebarOpen(false); };
 
