@@ -265,7 +265,7 @@ const AdminDashboard = () => {
       // Remove undefined keys
       const cleanPayload = Object.fromEntries(Object.entries(payload).filter(([_, v]) => v !== undefined));
       if (editingId) {
-        const { error } = await supabase.from("products").update(cleanPayload).eq("id", editingId);
+        const { error } = await supabase.from("products").update(cleanPayload as any).eq("id", editingId);
         if (error) throw error;
       } else {
         const { error } = await supabase.from("products").insert(cleanPayload as any);
