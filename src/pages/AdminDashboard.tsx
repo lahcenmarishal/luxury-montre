@@ -1103,8 +1103,8 @@ const AdminDashboard = () => {
 
             {/* Homepage Images */}
             <div className="bg-background border border-border p-4 sm:p-6 max-w-lg mt-6">
-              <h3 className="text-lg font-display font-semibold mb-4">Images de la page d'accueil</h3>
-              <p className="text-sm text-muted-foreground font-body mb-6">Modifiez les images des cartes catégories, de la section "Nos Catégories" et de la bannière Prestige. Les images des catégories servent aussi de fond sur les pages catégories.</p>
+              <h3 className="text-lg font-display font-semibold mb-4">Images du site</h3>
+              <p className="text-sm text-muted-foreground font-body mb-6">Modifiez les images des catégories, sous-catégories, genres de montres et de la bannière Prestige.</p>
               <div className="space-y-5">
                 {homepageImageKeys.map(({ key, label, desc }) => (
                   <div key={key} className="space-y-2">
