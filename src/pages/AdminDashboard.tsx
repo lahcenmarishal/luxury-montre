@@ -860,6 +860,7 @@ const AdminDashboard = () => {
                               <TableCell className="font-body font-medium">
                                 <span className="flex items-center gap-2">
                                   <ChevronDown className={`w-3 h-3 transition-transform ${expandedBrandId === b.id ? "rotate-180" : ""}`} />
+                                  {b.image_url && <img src={b.image_url} alt={b.name} className="w-8 h-8 object-contain rounded" />}
                                   {b.name}
                                 </span>
                               </TableCell>
