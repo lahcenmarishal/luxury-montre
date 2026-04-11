@@ -32,10 +32,10 @@ const emptyForm: ProductForm = {
 };
 
 interface BrandForm {
-  name: string; slug: string; category: string; display_in_menu: boolean; is_active: boolean;
+  name: string; slug: string; category: string; display_in_menu: boolean; is_active: boolean; image_url: string;
 }
 
-const emptyBrandForm: BrandForm = { name: "", slug: "", category: "montres", display_in_menu: true, is_active: true };
+const emptyBrandForm: BrandForm = { name: "", slug: "", category: "montres", display_in_menu: true, is_active: true, image_url: "" };
 
 const subcategoryOptions: Record<string, { value: string; label: string }[]> = {
   montres: [
@@ -319,12 +319,13 @@ const AdminDashboard = () => {
   // Brand mutations
   const saveBrandMutation = useMutation({
     mutationFn: async () => {
-      const payload = {
+      const payload: any = {
         name: brandForm.name,
         slug: brandForm.slug,
         category: brandForm.category,
         display_in_menu: brandForm.display_in_menu,
         is_active: brandForm.is_active,
+        image_url: brandForm.image_url || null,
       };
       if (editingBrandId) {
         const { error } = await supabase.from("brands").update(payload).eq("id", editingBrandId);
@@ -459,6 +460,7 @@ const AdminDashboard = () => {
     setBrandForm({
       name: brand.name, slug: brand.slug, category: brand.category,
       display_in_menu: brand.display_in_menu, is_active: brand.is_active,
+      image_url: brand.image_url || "",
     });
     setBrandDialogOpen(true);
   };
@@ -789,6 +791,13 @@ const AdminDashboard = () => {
                       <Label>Afficher dans le menu</Label>
                       <Switch checked={brandForm.display_in_menu} onCheckedChange={v => setBrandForm({ ...brandForm, display_in_menu: v })} />
                     </div>
+                    <div className="space-y-2">
+                      <Label>Image de la marque (URL)</Label>
+                      <Input value={brandForm.image_url} onChange={e => setBrandForm({ ...brandForm, image_url: e.target.value })} placeholder="https://..." />
+                      {brandForm.image_url && (
+                        <img src={brandForm.image_url} alt="Aperçu" className="w-20 h-20 object-contain border border-border rounded mt-1" />
+                      )}
+                    </div>
                     <div className="flex items-center justify-between">
                       <Label>Active</Label>
                       <Switch checked={brandForm.is_active} onCheckedChange={v => setBrandForm({ ...brandForm, is_active: v })} />
@@ -851,6 +860,7 @@ const AdminDashboard = () => {
                               <TableCell className="font-body font-medium">
                                 <span className="flex items-center gap-2">
                                   <ChevronDown className={`w-3 h-3 transition-transform ${expandedBrandId === b.id ? "rotate-180" : ""}`} />
+                                  {b.image_url && <img src={b.image_url} alt={b.name} className="w-8 h-8 object-contain rounded" />}
                                   {b.name}
                                 </span>
                               </TableCell>
