@@ -12,7 +12,7 @@ import { useHomepageImages } from "@/hooks/useHomepageImages";
 const CategoryPage = () => {
   const { categorySlug } = useParams<{ categorySlug: string }>();
   const category = getCategoryBySlug(categorySlug || "");
-  const { catMontres, catBijoux, catAccessoires } = useHomepageImages();
+  const { catMontres, catBijoux, catAccessoires, getSubcategoryImage } = useHomepageImages();
 
   const categoryImageMap: Record<string, string> = {
     montres: catMontres,
@@ -33,6 +33,20 @@ const CategoryPage = () => {
     },
   });
 
+  const { data: brands = [] } = useQuery({
+    queryKey: ["category-brands", categorySlug],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("brands")
+        .select("*")
+        .eq("category", categorySlug || "")
+        .eq("is_active", true);
+      if (error) throw error;
+      return data;
+    },
+    enabled: categorySlug === "montres",
+  });
+
   if (!category) {
     return (
       <div className="min-h-screen bg-background">
@@ -48,14 +62,7 @@ const CategoryPage = () => {
   }
 
   const isMontres = categorySlug === "montres";
-
-  const glycineProducts = dbProducts.filter(p => p.brand?.toLowerCase() === "glycine");
-  const glycineModels = [...new Set(glycineProducts.map(p => p.model).filter(Boolean))] as string[];
-  const glycineReferences = glycineProducts.map(p => ({ ref: p.reference, name: p.name, id: p.id }));
-
-  const glycineSubcategory = category.subcategories.find(s => s.slug === "glycine");
   const genderSubcategories = category.subcategories.filter(s => ["homme", "femme", "unisexe"].includes(s.slug));
-  const autresMarquesSubcategories = category.subcategories.filter(s => ["seiko", "fossil", "casio"].includes(s.slug));
 
   return (
     <div className="min-h-screen bg-background">
@@ -86,106 +93,51 @@ const CategoryPage = () => {
           {/* Gender subcategories */}
           <div className="section-container pb-8">
             <h2 className="text-xl font-display font-bold mb-6 tracking-wider">Par genre</h2>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {genderSubcategories.map((sub) => (
-                <Link key={sub.slug} to={`/categorie/montres/${sub.slug}`} className="group relative h-[180px] overflow-hidden bg-secondary">
-                  <img src={sub.image} alt={sub.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                  <div className="absolute inset-0 bg-foreground/20 group-hover:bg-foreground/40 transition-colors duration-300" />
-                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-foreground/80 to-transparent">
-                    <h3 className="text-primary-foreground text-sm font-body tracking-wider">{sub.name}</h3>
-                  </div>
-                </Link>
-              ))}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {genderSubcategories.map((sub) => {
+                const dynamicImage = getSubcategoryImage("montres", sub.slug);
+                return (
+                  <Link key={sub.slug} to={`/categorie/montres/${sub.slug}`} className="group relative h-[200px] overflow-hidden bg-secondary">
+                    <img src={dynamicImage || sub.image} alt={sub.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                    <div className="absolute inset-0 bg-foreground/20 group-hover:bg-foreground/40 transition-colors duration-300" />
+                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-foreground/80 to-transparent">
+                      <h3 className="text-primary-foreground text-sm font-body tracking-wider">{sub.name}</h3>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </div>
 
-          {/* Glycine Section */}
-          {glycineSubcategory && (
-            <div className="section-container pb-10">
-              <div className="border-t border-border pt-8">
-                <h2 className="text-2xl font-display font-bold mb-2 tracking-wider">Glycine</h2>
-                <p className="text-sm text-muted-foreground font-body mb-6">Marque suisse d'exception, reconnue pour ses montres aviateur et de plongée.</p>
-
-                <div className="mb-8">
-                  <h3 className="text-lg font-display font-semibold mb-4 tracking-wider">Produits Glycine</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    {glycineProducts.map((p) => (
-                      <Link key={p.id} to={`/produit/${p.id}`}>
-                        <ProductCard id={p.id} image={p.image_url || ""} hoverImage={p.hover_image_url || p.image_url || ""} brand={p.brand} name={p.name} price={p.price} oldPrice={p.old_price ?? undefined} badge={p.badge_type ? { type: p.badge_type as "hot" | "sale", label: p.badge_label || "" } : undefined} />
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Glycine Models */}
-                {glycineModels.length > 0 && (
-                  <div className="mb-8">
-                    <h3 className="text-lg font-display font-semibold mb-4 tracking-wider">Modèles</h3>
-                    <div className="flex flex-wrap gap-3">
-                      {glycineModels.map((model) => {
-                        const modelProducts = glycineProducts.filter(p => p.model === model);
-                        return (
-                          <Link
-                            key={model}
-                            to={`/categorie/montres/glycine?model=${encodeURIComponent(model)}`}
-                            className="px-5 py-3 border border-border bg-background hover:bg-accent hover:text-accent-foreground transition-colors duration-200 font-body text-sm"
-                          >
-                            {model}
-                            <span className="ml-2 text-xs text-muted-foreground">({modelProducts.length})</span>
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {/* Glycine References */}
-                {glycineReferences.length > 0 && (
-                  <div>
-                    <h3 className="text-lg font-display font-semibold mb-4 tracking-wider">Références</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {glycineReferences.map((item) => (
-                        <Link
-                          key={item.ref}
-                          to={`/produit/${item.id}`}
-                          className="flex items-center justify-between px-4 py-3 border border-border bg-background hover:bg-secondary transition-colors duration-200"
-                        >
-                          <span className="font-body text-sm text-foreground">{item.name}</span>
-                          <span className="text-xs text-muted-foreground font-mono">{item.ref}</span>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Autres Marques Section */}
-          {autresMarquesSubcategories.length > 0 && (
-            <div className="section-container pb-10">
-              <div className="border-t border-border pt-8">
-                <h2 className="text-2xl font-display font-bold mb-6 tracking-wider">Autres Marques</h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {autresMarquesSubcategories.map((sub) => {
-                    const brandProducts = dbProducts.filter(p => p.brand?.toLowerCase() === sub.slug);
-                    return (
-                      <Link key={sub.slug} to={`/categorie/montres/${sub.slug}`} className="group relative h-[200px] overflow-hidden bg-secondary">
-                        <img src={sub.image} alt={sub.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                        <div className="absolute inset-0 bg-foreground/20 group-hover:bg-foreground/40 transition-colors duration-300" />
-                        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-foreground/80 to-transparent">
-                          <h3 className="text-primary-foreground text-sm font-body tracking-wider">{sub.name}</h3>
-                          <p className="text-primary-foreground/60 text-xs font-body mt-1">{brandProducts.length} produit(s)</p>
+          {/* Brands */}
+          {brands.length > 0 && (
+            <div className="section-container pb-8">
+              <h2 className="text-xl font-display font-bold mb-6 tracking-wider">Nos Marques</h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {brands.map((brand: any) => {
+                  const brandProducts = dbProducts.filter(p => p.brand?.toLowerCase() === brand.slug);
+                  return (
+                    <Link key={brand.id} to={`/categorie/montres/${brand.slug}`} className="group relative h-[180px] overflow-hidden bg-secondary">
+                      {brand.image_url ? (
+                        <img src={brand.image_url} alt={brand.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                      ) : (
+                        <div className="w-full h-full bg-muted flex items-center justify-center">
+                          <span className="text-2xl font-display font-bold text-muted-foreground">{brand.name}</span>
                         </div>
-                      </Link>
-                    );
-                  })}
-                </div>
+                      )}
+                      <div className="absolute inset-0 bg-foreground/20 group-hover:bg-foreground/40 transition-colors duration-300" />
+                      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-foreground/80 to-transparent">
+                        <h3 className="text-primary-foreground text-sm font-body tracking-wider">{brand.name}</h3>
+                        <p className="text-primary-foreground/60 text-xs font-body mt-1">{brandProducts.length} produit(s)</p>
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           )}
 
-          {/* All watches from DB */}
+          {/* All watches */}
           {dbProducts.length > 0 && (
             <div className="section-container pb-16">
               <div className="border-t border-border pt-8">
@@ -207,15 +159,18 @@ const CategoryPage = () => {
           <div className="section-container pb-8">
             <h2 className="text-xl font-display font-bold mb-6 tracking-wider">Sous-catégories</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {category.subcategories.map((sub) => (
-                <Link key={sub.slug} to={`/categorie/${category.slug}/${sub.slug}`} className="group relative h-[180px] overflow-hidden bg-secondary">
-                  <img src={sub.image} alt={sub.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                  <div className="absolute inset-0 bg-foreground/20 group-hover:bg-foreground/40 transition-colors duration-300" />
-                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-foreground/80 to-transparent">
-                    <h3 className="text-primary-foreground text-sm font-body tracking-wider">{sub.name}</h3>
-                  </div>
-                </Link>
-              ))}
+              {category.subcategories.map((sub) => {
+                const dynamicImage = getSubcategoryImage(categorySlug || "", sub.slug);
+                return (
+                  <Link key={sub.slug} to={`/categorie/${category.slug}/${sub.slug}`} className="group relative h-[180px] overflow-hidden bg-secondary">
+                    <img src={dynamicImage || sub.image} alt={sub.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                    <div className="absolute inset-0 bg-foreground/20 group-hover:bg-foreground/40 transition-colors duration-300" />
+                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-foreground/80 to-transparent">
+                      <h3 className="text-primary-foreground text-sm font-body tracking-wider">{sub.name}</h3>
+                    </div>
+                  </Link>
+                );
+              })}
             </div>
           </div>
 

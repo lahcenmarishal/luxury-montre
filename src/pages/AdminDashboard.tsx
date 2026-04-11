@@ -178,6 +178,22 @@ const AdminDashboard = () => {
     { key: "image_cat_accessoires", label: "Image catégorie Accessoires", desc: "Carte sur la page d'accueil + fond page catégorie Accessoires" },
     { key: "image_top_categories_bg", label: "Fond section Nos Catégories", desc: "Image de fond de la section 'Nos Catégories'" },
     { key: "image_prestige_banner", label: "Bannière Prestige", desc: "Image de la bannière 'Prestige et Élégance'" },
+    // Watch genders
+    { key: "image_montres_homme", label: "Montres Homme", desc: "Image de la sous-catégorie Montres Homme" },
+    { key: "image_montres_femme", label: "Montres Femme", desc: "Image de la sous-catégorie Montres Femme" },
+    { key: "image_montres_unisexe", label: "Montres Unisexe", desc: "Image de la sous-catégorie Montres Unisexe" },
+    // Bijoux subcategories
+    { key: "image_bijoux_bagues", label: "Bijoux - Bagues", desc: "Image de la sous-catégorie Bagues" },
+    { key: "image_bijoux_bracelets", label: "Bijoux - Bracelets", desc: "Image de la sous-catégorie Bracelets" },
+    // Accessoires subcategories
+    { key: "image_accessoires_lunettes_de_vue", label: "Lunettes de vue", desc: "Image de la sous-catégorie Lunettes de vue" },
+    { key: "image_accessoires_lunettes_de_soleil", label: "Lunettes de soleil", desc: "Image de la sous-catégorie Lunettes de soleil" },
+    { key: "image_accessoires_parfum", label: "Parfum", desc: "Image de la sous-catégorie Parfum" },
+    { key: "image_accessoires_stylos", label: "Stylos", desc: "Image de la sous-catégorie Stylos" },
+    { key: "image_accessoires_porte_documents", label: "Porte-documents", desc: "Image de la sous-catégorie Porte-documents" },
+    { key: "image_accessoires_portefeuille", label: "Portefeuille", desc: "Image de la sous-catégorie Portefeuille" },
+    { key: "image_accessoires_sac_a_dos", label: "Sac à dos", desc: "Image de la sous-catégorie Sac à dos" },
+    { key: "image_accessoires_ceintures", label: "Ceintures", desc: "Image de la sous-catégorie Ceintures" },
   ];
 
   const { data: homepageImages = {} } = useQuery({
@@ -231,7 +247,7 @@ const AdminDashboard = () => {
       if (hoverImageFile) hover_image_url = await uploadImage(hoverImageFile);
       if (galleryFiles.length > 0) galleryUrls = await Promise.all(galleryFiles.map(f => uploadImage(f)));
 
-      const payload: Record<string, unknown> = {
+      const payload = {
         name: form.name, brand: form.brand,
         price: parseFloat(form.price),
         old_price: form.old_price ? parseFloat(form.old_price) : null,
@@ -240,22 +256,19 @@ const AdminDashboard = () => {
         badge_type: form.badge_type || null, badge_label: form.badge_label || null,
         description: form.description, model: form.model || null,
         stock: parseInt(form.stock) || 0, is_active: form.is_active,
+        image_url: image_url || undefined,
+        hover_image_url: hover_image_url || undefined,
+        gallery: galleryUrls.length > 0
+          ? (editingId ? [...(products.find((p: any) => p.id === editingId)?.gallery || []), ...galleryUrls] : galleryUrls)
+          : undefined,
       };
-      if (image_url) payload.image_url = image_url;
-      if (hover_image_url) payload.hover_image_url = hover_image_url;
-      if (galleryUrls.length > 0) {
-        if (editingId) {
-          const existing = products.find((p: any) => p.id === editingId);
-          payload.gallery = [...(existing?.gallery || []), ...galleryUrls];
-        } else {
-          payload.gallery = galleryUrls;
-        }
-      }
+      // Remove undefined keys
+      const cleanPayload = Object.fromEntries(Object.entries(payload).filter(([_, v]) => v !== undefined));
       if (editingId) {
-        const { error } = await supabase.from("products").update(payload).eq("id", editingId);
+        const { error } = await supabase.from("products").update(cleanPayload as any).eq("id", editingId);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("products").insert(payload as any);
+        const { error } = await supabase.from("products").insert(cleanPayload as any);
         if (error) throw error;
       }
     },
@@ -384,12 +397,12 @@ const AdminDashboard = () => {
     mutationFn: async () => {
       let image_url: string | undefined;
       if (slideImageFile) image_url = await uploadImage(slideImageFile);
-      const payload: Record<string, unknown> = {
+      const payload = {
         title: slideForm.title, subtitle: slideForm.subtitle,
         description: slideForm.description, link: slideForm.link,
         sort_order: slideForm.sort_order, is_active: slideForm.is_active,
+        ...(image_url ? { image_url } : {}),
       };
-      if (image_url) payload.image_url = image_url;
       if (editingSlideId) {
         const { error } = await supabase.from("hero_slides").update(payload).eq("id", editingSlideId);
         if (error) throw error;
@@ -1090,8 +1103,8 @@ const AdminDashboard = () => {
 
             {/* Homepage Images */}
             <div className="bg-background border border-border p-4 sm:p-6 max-w-lg mt-6">
-              <h3 className="text-lg font-display font-semibold mb-4">Images de la page d'accueil</h3>
-              <p className="text-sm text-muted-foreground font-body mb-6">Modifiez les images des cartes catégories, de la section "Nos Catégories" et de la bannière Prestige. Les images des catégories servent aussi de fond sur les pages catégories.</p>
+              <h3 className="text-lg font-display font-semibold mb-4">Images du site</h3>
+              <p className="text-sm text-muted-foreground font-body mb-6">Modifiez les images des catégories, sous-catégories, genres de montres et de la bannière Prestige.</p>
               <div className="space-y-5">
                 {homepageImageKeys.map(({ key, label, desc }) => (
                   <div key={key} className="space-y-2">
