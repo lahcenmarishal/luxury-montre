@@ -93,7 +93,7 @@ const Navbar = () => {
   if (montresBrands.length > 0) {
     montresBrands.forEach(b => {
       const models = brandModels.filter((m: any) => m.brand_id === b.id);
-      const items = [{ label: `Tous ${b.name}`, href: `/categorie/montres/${b.slug}` }];
+      const items = [{ label: b.name, href: `/categorie/montres/${b.slug}` }];
       models.forEach((m: any) => {
         items.push({ label: m.name, href: `/categorie/montres/${b.slug}/${m.slug}` });
       });
