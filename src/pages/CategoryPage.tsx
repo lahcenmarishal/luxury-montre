@@ -92,7 +92,7 @@ const CategoryPage = () => {
         <>
           {/* Gender subcategories */}
           <div className="section-container pb-8">
-            <h2 className="text-xl font-display font-bold mb-6 tracking-wider">Par genre</h2>
+            <h2 className="text-xl font-display font-bold mb-6 tracking-wider">Genre</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {genderSubcategories.map((sub) => {
                 const dynamicImage = getSubcategoryImage("montres", sub.slug);
