@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import TopBar from "@/components/TopBar";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SEOHead from "@/components/SEOHead";
 import ProductCard from "@/components/ProductCard";
 import { ChevronRight, Heart, ShoppingBag, Minus, Plus, Truck, Shield, RotateCcw } from "lucide-react";
 import { useState, useCallback } from "react";
@@ -101,8 +102,35 @@ const ProductPage = () => {
   const subcategory = category?.subcategories.find((s) => s.slug === product.subcategory);
   const gallery = (product.gallery && product.gallery.length > 0) ? product.gallery : (product.image_url ? [product.image_url] : []);
 
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    brand: { "@type": "Brand", name: product.brand },
+    description: product.description || `${product.name} par ${product.brand} - Disponible au Maroc`,
+    image: product.image_url,
+    sku: product.reference,
+    offers: {
+      "@type": "Offer",
+      price: product.price,
+      priceCurrency: "MAD",
+      availability: "https://schema.org/InStock",
+      seller: { "@type": "Organization", name: "LuxuryMontre" },
+      url: `https://luxurymontre.ma/produit/${product.id}`,
+    },
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title={`${product.name} ${product.brand} — Acheter au Maroc`}
+        description={product.description || `Achetez ${product.name} de ${product.brand} au Maroc. Prix: ${Number(product.price).toLocaleString()} MAD. Livraison partout au Maroc. Authenticité garantie.`}
+        keywords={`${product.name}, ${product.brand} maroc, ${product.brand} montre, achat ${product.brand} maroc, ${product.reference}, montre luxe maroc`}
+        canonical={`https://luxurymontre.ma/produit/${product.id}`}
+        type="product"
+        image={product.image_url || undefined}
+        jsonLd={productJsonLd}
+      />
       <TopBar />
       <Navbar />
 

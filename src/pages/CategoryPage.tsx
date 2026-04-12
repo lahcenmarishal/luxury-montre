@@ -4,10 +4,29 @@ import ProductCard from "@/components/ProductCard";
 import TopBar from "@/components/TopBar";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import SEOHead from "@/components/SEOHead";
 import { ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useHomepageImages } from "@/hooks/useHomepageImages";
+
+const categoryMeta: Record<string, { title: string; description: string; keywords: string }> = {
+  montres: {
+    title: "Montres de Luxe au Maroc",
+    description: "Découvrez notre collection de montres de luxe au Maroc : Glycine, Seiko, Fossil, Casio. Montres homme et femme. Livraison partout au Maroc avec garantie authenticité.",
+    keywords: "montre luxe maroc, montre homme maroc, montre femme maroc, glycine montre, seiko maroc, fossil maroc, casio maroc, montre automatique maroc, montre originale maroc, achat montre en ligne maroc",
+  },
+  bijoux: {
+    title: "Bijoux de Luxe au Maroc",
+    description: "Collection exclusive de bijoux de luxe au Maroc. Bagues, bracelets, colliers et boucles d'oreilles. Qualité premium et designs élégants. Livraison au Maroc.",
+    keywords: "bijoux luxe maroc, bague maroc, bracelet luxe maroc, collier maroc, boucles d'oreilles maroc, bijoux homme maroc, bijoux femme maroc, achat bijoux en ligne maroc",
+  },
+  accessoires: {
+    title: "Accessoires de Luxe au Maroc",
+    description: "Accessoires de luxe au Maroc : lunettes, parfums, stylos, maroquinerie. Marques premium à prix compétitifs. Livraison partout au Maroc.",
+    keywords: "accessoires luxe maroc, lunettes luxe maroc, parfum maroc, stylo luxe maroc, maroquinerie luxe maroc, portefeuille maroc, sac à dos luxe maroc, ceinture luxe maroc",
+  },
+};
 
 const CategoryPage = () => {
   const { categorySlug } = useParams<{ categorySlug: string }>();
@@ -64,8 +83,18 @@ const CategoryPage = () => {
   const isMontres = categorySlug === "montres";
   const genderSubcategories = category.subcategories.filter(s => ["homme", "femme", "unisexe"].includes(s.slug));
 
+  const seo = categoryMeta[categorySlug || ""];
+
   return (
     <div className="min-h-screen bg-background">
+      {seo && (
+        <SEOHead
+          title={seo.title}
+          description={seo.description}
+          keywords={seo.keywords}
+          canonical={`https://luxurymontre.ma/categorie/${categorySlug}`}
+        />
+      )}
       <TopBar />
       <Navbar />
 
