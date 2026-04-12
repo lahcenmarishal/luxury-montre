@@ -792,11 +792,30 @@ const AdminDashboard = () => {
                       <Switch checked={brandForm.display_in_menu} onCheckedChange={v => setBrandForm({ ...brandForm, display_in_menu: v })} />
                     </div>
                     <div className="space-y-2">
-                      <Label>Image de la marque (URL)</Label>
-                      <Input value={brandForm.image_url} onChange={e => setBrandForm({ ...brandForm, image_url: e.target.value })} placeholder="https://..." />
-                      {brandForm.image_url && (
-                        <img src={brandForm.image_url} alt="Aperçu" className="w-20 h-20 object-contain border border-border rounded mt-1" />
-                      )}
+                      <Label>Image de la marque</Label>
+                      <div className="flex gap-2 items-end">
+                        <div className="flex-1 space-y-2">
+                          <Input
+                            type="file"
+                            accept="image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              const ext = file.name.split(".").pop();
+                              const path = `brands/${Date.now()}.${ext}`;
+                              const { error } = await supabase.storage.from("product-images").upload(path, file, { upsert: true });
+                              if (error) { toast({ title: "Erreur upload", description: error.message, variant: "destructive" }); return; }
+                              const { data: urlData } = supabase.storage.from("product-images").getPublicUrl(path);
+                              setBrandForm({ ...brandForm, image_url: urlData.publicUrl });
+                              toast({ title: "Image uploadée" });
+                            }}
+                          />
+                          <Input value={brandForm.image_url} onChange={e => setBrandForm({ ...brandForm, image_url: e.target.value })} placeholder="Ou collez une URL..." />
+                        </div>
+                        {brandForm.image_url && (
+                          <img src={brandForm.image_url} alt="Aperçu" className="w-20 h-20 object-contain border border-border rounded shrink-0" />
+                        )}
+                      </div>
                     </div>
                     <div className="flex items-center justify-between">
                       <Label>Active</Label>
