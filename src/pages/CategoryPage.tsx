@@ -83,8 +83,18 @@ const CategoryPage = () => {
   const isMontres = categorySlug === "montres";
   const genderSubcategories = category.subcategories.filter(s => ["homme", "femme", "unisexe"].includes(s.slug));
 
+  const seo = categoryMeta[categorySlug || ""];
+
   return (
     <div className="min-h-screen bg-background">
+      {seo && (
+        <SEOHead
+          title={seo.title}
+          description={seo.description}
+          keywords={seo.keywords}
+          canonical={`https://luxurymontre.ma/categorie/${categorySlug}`}
+        />
+      )}
       <TopBar />
       <Navbar />
 
