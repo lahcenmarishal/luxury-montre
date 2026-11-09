@@ -1,73 +1,48 @@
-# Welcome to your Lovable project
+# Luxury Montre
 
-## Project info
+Boutique en ligne moderne et élégante spécialisée dans la vente de montres, mettant en valeur des collections horlogères à travers une expérience shopping premium.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+Site en ligne : https://luxurymontre.ma/
 
-## How can I edit this code?
+## Le problème
 
-There are several ways of editing your application.
+Les boutiques de montres ont besoin d'une présence digitale professionnelle pour présenter leurs collections, valoriser leurs produits et faciliter les commandes en ligne.
 
-**Use Lovable**
+## La solution
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+Luxury Montre propose une plateforme e-commerce permettant aux clients de découvrir les collections et de commander facilement leurs montres :
 
-Changes made via Lovable will be committed automatically to this repo.
+1. Découverte de la boutique et de son univers.
+2. Consultation des différentes collections de montres.
+3. Visualisation des produits et de leurs détails.
+4. Accès aux moyens de commande et de contact.
 
-**Use your preferred IDE**
+## Fonctionnalités
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+- Design moderne et élégant
+- Catalogue de montres
+- Présentation détaillée des produits
+- Navigation intuitive
+- Mise en valeur des collections
+- Interface responsive (mobile, tablette et ordinateur)
+- Accès rapide aux moyens de contact et de commande
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Technologies
 
-Follow these steps:
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## Installation
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+git clone https://github.com/lahcenmarishal/remix-of-remix-of-timepiece-elegance.git
+cd remix-of-remix-of-timepiece-elegance
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Auteur
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Lahcen, développeur IA.
