@@ -37,8 +37,8 @@ Luxury Montre propose une plateforme e-commerce permettant aux clients de décou
 ## Installation
 
 ```bash
-git clone https://github.com/lahcenmarishal/remix-of-remix-of-timepiece-elegance.git
-cd remix-of-remix-of-timepiece-elegance
+git clone https://github.com/lahcenmarishal/luxury-montre.git
+cd luxury-montre
 npm install
 npm run dev
 ```
